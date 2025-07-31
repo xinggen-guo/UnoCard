@@ -32,6 +32,7 @@ kotlin {
                 implementation(ui)
                 implementation(foundation)
                 implementation(material)
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             }
         }
         commonTest.dependencies {

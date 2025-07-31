@@ -11,5 +11,9 @@ enum class CardType {
     REVERSE,
     DRAW_TWO,
     WILD,
-    WILD_DRAW_FOUR
+    WILD_DRAW_FOUR;
+
+    fun isWild(): Boolean {
+        return this == WILD || this == WILD_DRAW_FOUR
+    }
 }

@@ -1,5 +1,6 @@
 package com.card.unoshare.rule
 
+import com.card.unoshare.engine.GameController
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
@@ -11,7 +12,7 @@ import com.card.unoshare.model.Player
  * @description
  */
 object EffectApplier {
-    fun applyEffect(card: Card, gameStatus: GameStatus, players: List<Player>, drawPile: MutableList<Card>) {
+    fun applyEffect(card: Card, gameStatus: GameStatus , drawPile: MutableList<Card>) {
         when (card.type) {
             CardType.SKIP -> gameStatus.nextPlayer()
             CardType.REVERSE -> gameStatus.isClockwise = !gameStatus.isClockwise
@@ -27,5 +28,17 @@ object EffectApplier {
             }
             else -> {}
         }
+    }
+
+    fun apply(card: Card, gameController: GameController) {
+        applyEffect(
+            card = card,
+            gameStatus = GameStatus(
+                currentPlayerIndex = gameController.getCurrentPlayerIndex(),
+                isClockwise = gameController.isClockwise(),
+                players = gameController.getPlayers()
+            ),
+            drawPile = gameController.getDeck()
+        )
     }
 }

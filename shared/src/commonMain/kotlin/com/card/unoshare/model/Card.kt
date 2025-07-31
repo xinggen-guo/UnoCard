@@ -19,4 +19,11 @@ data class Card(
             "$color-$type"
         }
     }
+
+    fun displayText(): String {
+        return if (type == CardType.NUMBER)
+            "${color.name}:${number}"
+        else
+            "${color.name}:${type.name.take(3)}"
+    }
 }

@@ -16,4 +16,8 @@ object RuleChecker {
                 (card.type == CardType.NUMBER && card.number == topCard.number) ||
                 (card.type == topCard.type && card.type != CardType.NUMBER)
     }
+
+    fun isPlayable(card: Card, topCard: Card): Boolean {
+        return isValidMove(card, topCard)
+    }
 }
