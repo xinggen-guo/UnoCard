@@ -1,16 +1,12 @@
 import SwiftUI
-import shared
+import shared // your KMP shared module
 
-struct ContentView: View {
-	let greet = Greeting().greet()
+struct ContentView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        return MainViewController() // Kotlin function
+    }
 
-	var body: some View {
-		Text(greet)
-	}
-}
-
-struct ContentView_Previews: PreviewProvider {
-	static var previews: some View {
-		ContentView()
-	}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        // No update needed for static UI
+    }
 }

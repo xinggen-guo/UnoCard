@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    id("org.jetbrains.compose") version "1.6.10"
 }
 
 kotlin {
@@ -26,6 +27,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             //put your multiplatform dependencies here
+            with(compose) {
+                implementation(runtime)
+                implementation(ui)
+                implementation(foundation)
+                implementation(material)
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

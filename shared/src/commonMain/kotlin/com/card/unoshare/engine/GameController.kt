@@ -1,8 +1,10 @@
 package com.card.unoshare.engine
 
 /**
- * @author xinggen.guo 
+ * @author xinggen.guo
  * @date 31/07/2025 13:57
  * @description
- */class GameController {
+ */
+class GameController {
+    // bind different platform for simple to debug and bind UI
 }

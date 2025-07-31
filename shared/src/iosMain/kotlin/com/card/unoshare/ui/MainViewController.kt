@@ -1,8 +1,10 @@
 package com.card.unoshare.ui
 
+import androidx.compose.ui.window.ComposeUIViewController
+
 /**
- * @author xinggen.guo 
+ * @author xinggen.guo
  * @date 31/07/2025 15:02
  * @description
- */class MainViewController {
-}
+ */
+fun MainViewController() = ComposeUIViewController { UnoGameScreen() }
