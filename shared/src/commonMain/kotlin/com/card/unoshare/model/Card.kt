@@ -6,24 +6,25 @@ package com.card.unoshare.model
  * @description card base information
  */
 data class Card(
-    val color: CardColor,
+    var color: CardColor,
     val type: CardType,
     val number: Int? = null
 ) {
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
-
-    override fun toString(): String {
-        return if (type == CardType.NUMBER) {
-            "$color-$number"
-        } else {
-            "$color-$type"
-        }
-    }
 
     fun displayText(): String {
         return if (type == CardType.NUMBER)
             "${color.name}:${number}"
         else
             "${color.name}:${type.name.take(3)}"
+    }
+
+    fun randomColor() {
+        val cardColor = CardColor.entries.random()
+        if (CardColor.WILD == cardColor) {
+            randomColor()
+        } else {
+            color = cardColor
+        }
     }
 }

@@ -9,7 +9,8 @@ class GameStatus(
     val players: List<Player>,
     var currentPlayerIndex: Int = 0,
     var isClockwise: Boolean = true,
-    var gameEnded: Boolean = false
+    var gameEnded: Boolean = false,
+    var gameStart: Boolean = false
 ) {
     fun nextPlayer() {
         currentPlayerIndex = if (isClockwise)
@@ -19,4 +20,20 @@ class GameStatus(
     }
 
     fun currentPlayer(): Player = players[currentPlayerIndex]
+
+    fun reverseOrder() {
+        isClockwise = !isClockwise
+    }
+
+    fun skipNextPlayer() {
+        nextPlayer()
+    }
+
+    fun peekNextPlayer(): Player {
+        val nexPlayerIndex = if (isClockwise)
+            (currentPlayerIndex + 1) % players.size
+        else
+            (currentPlayerIndex - 1 + players.size) % players.size
+        return players[nexPlayerIndex]
+    }
 }

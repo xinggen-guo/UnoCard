@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.card.unoshare.engine.GameEngine
+import com.card.unoshare.model.Card
 import com.card.unoshare.model.Player
 import com.card.unoshare.rule.SpecialRuleSet
 
@@ -25,11 +26,20 @@ fun UnoGameScreen() {
     val p2 = remember { Player("2", "Bob", isAI = true) }
     val p3 = remember { Player("3", "Bella", isAI = true) }
     val gameEngine = remember { GameEngine(listOf(p1, p2, p3), SpecialRuleSet()) }
-    gameEngine.startGame()
-    var currentPlayerName by remember { mutableStateOf(gameEngine.getCurrentPlayerName()) }
-    var topCard by remember { mutableStateOf(gameEngine.getTopCard()?.displayText() ?: "None") }
-    var allHands by remember { mutableStateOf(gameEngine.getAllPlayerHands()) }
+
+    var currentPlayerName by remember { mutableStateOf("") }
+    var topCard by remember { mutableStateOf("") }
+    var allHands by remember { mutableStateOf(mapOf<String, List<Card>>()) }
     var winner by remember { mutableStateOf<String?>(null) }
+
+    // 🟡 初始化游戏（只执行一次）
+    // 🟡 Initialize the game once
+    LaunchedEffect(Unit) {
+        gameEngine.startGame()
+        currentPlayerName = gameEngine.getCurrentPlayerName()
+        topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+        allHands = gameEngine.getAllPlayerHands()
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
