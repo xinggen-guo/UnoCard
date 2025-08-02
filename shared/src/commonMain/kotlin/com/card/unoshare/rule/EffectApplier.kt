@@ -12,26 +12,9 @@ import com.card.unoshare.model.Player
  * @description
  */
 object EffectApplier {
-    fun applyEffect(card: Card, gameStatus: GameStatus , drawPile: MutableList<Card>) {
-        when (card.type) {
-            CardType.SKIP -> gameStatus.nextPlayer()
-            CardType.REVERSE -> gameStatus.isClockwise = !gameStatus.isClockwise
-            CardType.DRAW_TWO -> {
-                gameStatus.nextPlayer()
-                val next = gameStatus.currentPlayer()
-                repeat(2) { if (drawPile.isNotEmpty()) next.drawCard(drawPile.removeFirst()) }
-            }
-            CardType.WILD_DRAW_FOUR -> {
-                gameStatus.nextPlayer()
-                val next = gameStatus.currentPlayer()
-                repeat(4) { if (drawPile.isNotEmpty()) next.drawCard(drawPile.removeFirst()) }
-            }
-            else -> {}
-        }
-    }
 
     fun apply(card: Card, gameController: GameController) {
-        applyEffect(
+        applyCardEffect(
             card = card,
             gameStatus = GameStatus(
                 currentPlayerIndex = gameController.getCurrentPlayerIndex(),
@@ -40,5 +23,51 @@ object EffectApplier {
             ),
             drawPile = gameController.getDeck()
         )
+    }
+
+    /**
+     * Apply special effects based on the card type
+     */
+    fun applyCardEffect(card: Card, gameStatus: GameStatus, drawPile: MutableList<Card>) {
+        when (card.type) {
+            CardType.REVERSE -> {
+                // Reverse the turn order
+                gameStatus.reverseOrder()
+            }
+
+            CardType.SKIP -> {
+                // Skip the next player
+                gameStatus.skipNextPlayer()
+            }
+
+            CardType.DRAW_TWO -> {
+                // Next player draws 2 cards and is skipped
+                val next = gameStatus.peekNextPlayer()
+                repeat(2) {
+                    drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
+                }
+                gameStatus.skipNextPlayer()
+            }
+
+            CardType.WILD, CardType.WILD_DRAW_FOUR -> {
+                // Choose a random color
+                card.randomColor()
+                if (card.type == CardType.WILD_DRAW_FOUR) {
+                    // Next player draws 4 and is skipped
+                    val next = gameStatus.peekNextPlayer()
+                    repeat(4) {
+                        drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
+                    }
+                    gameStatus.skipNextPlayer()
+                } else {
+                    // Just change color, no skip
+                    gameStatus.nextPlayer()
+                }
+            }
+
+            else -> {
+                // Normal number card, do nothing
+            }
+        }
     }
 }

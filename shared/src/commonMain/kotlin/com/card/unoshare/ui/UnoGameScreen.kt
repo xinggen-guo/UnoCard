@@ -1,6 +1,7 @@
 package com.card.unoshare.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameEngine
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.Player
+import com.card.unoshare.rule.RuleChecker
 import com.card.unoshare.rule.SpecialRuleSet
 
 
@@ -90,13 +92,13 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
 fun UnoGameScreen() {
 
     val p1 = remember { Player("1", "Alice", isAI = true) }
-    val p2 = remember { Player("2", "Bob", isAI = true) }
+    val p2 = remember { Player("2", "You", isAI = false) }
     val p3 = remember { Player("3", "Bella", isAI = true) }
     val gameEngine = remember { GameEngine(listOf(p1, p2, p3), SpecialRuleSet()) }
 
     var currentPlayerName by remember { mutableStateOf("") }
     var topCard by remember { mutableStateOf("") }
-    var allHands by remember { mutableStateOf(mapOf<String, List<Card>>()) }
+    var allHands by remember { mutableStateOf(mapOf<Player, List<Card>>()) }
     var winner by remember { mutableStateOf<String?>(null) }
 
     // 🟡 Initialize the game once
@@ -119,17 +121,38 @@ fun UnoGameScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        allHands.forEach { (playerName, hand) ->
+        allHands.forEach { (player, hand) ->
+            val playerName= player.name
             Text("$playerName's Hand (${hand.size} cards):")
             // Show player name and card count
+            val playerCard = player == gameEngine.getCurrentPlayer()
+            var canDraw = false
             Row {
                 hand.forEach { card ->
+                    val bgColor = if (playerCard) {
+                        canDraw = RuleChecker.isValidMove(card,gameEngine.getTopCard())
+                        if(canDraw){
+                            Color.Green
+                        }else{
+                            Color.Red
+                        }
+                    } else {
+                        Color.Transparent
+                    }
+
                     Text(
                         text = card.displayText(),
                         modifier = Modifier
+                            .background(bgColor)
                             .padding(4.dp)
                             .border(1.dp, Color.Gray)
-                            .padding(4.dp),
+                            .padding(4.dp)
+                            .clickable(enabled = canDraw && !player.isAI, onClick = {
+                                gameEngine.playTurn(card, player)
+                                topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+                                allHands = gameEngine.getAllPlayerHands()
+                                winner = gameEngine.getWinnerName()
+                            }),
                         fontSize = 12.sp
                     )
                 }
@@ -167,7 +190,6 @@ fun UnoGameScreen() {
                 }
             }) {
                 Text("Play Turn")
-                // Play card and switch
             }
 
         }

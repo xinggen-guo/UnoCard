@@ -5,6 +5,7 @@ import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
 import com.card.unoshare.model.Player
 import com.card.unoshare.rule.EffectApplier
+import com.card.unoshare.rule.EffectApplier.applyCardEffect
 import com.card.unoshare.rule.RuleChecker
 import com.card.unoshare.rule.SpecialRuleSet
 import com.card.unoshare.util.CardShuffler
@@ -53,29 +54,25 @@ class GameEngine(
         if (playable != null) {
             player.hand.remove(playable)
             discardPile.add(playable)
-            applyCardEffect(playable)
+            applyCardEffect(playable, gameStatus, drawPile)
         } else {
             player.drawCard(drawPile.removeAt(0))
         }
         gameStatus.nextPlayer()
     }
 
-    fun playTurn(playerIndex: Int, cardIndex: Int): Boolean {
-        val player = gameStatus.players[playerIndex]
-        val cardToPlay = player.hand.getOrNull(cardIndex) ?: return false
-        val topCard = discardPile.last()
+    fun playTurn(card: Card, player: Player): Boolean {
 
-        if (!RuleChecker.isValidMove(cardToPlay, topCard)) return false
-
-        discardPile.add(player.playCard(cardIndex)!!)
-        EffectApplier.applyEffect(cardToPlay, gameStatus , drawPile)
+        player.hand.remove(card)
+        discardPile.add(card)
+        applyCardEffect(card, gameStatus , drawPile)
 
         if (player.hand.isEmpty()) {
             gameStatus.gameEnded = true
             gameStatus.gameStart = false
+        } else {
+            gameStatus.nextPlayer()
         }
-        else gameStatus.nextPlayer()
-
         return true
     }
 
@@ -103,8 +100,8 @@ class GameEngine(
     }
 
     // Get all players' hands (for UI display)
-    fun getAllPlayerHands(): Map<String, List<Card>> {
-        return gameStatus.players.associate { it.name to it.hand.toList() }
+    fun getAllPlayerHands(): Map<Player, List<Card>> {
+        return gameStatus.players.associate { it to it.hand.toList() }
     }
 
     // Current player draws a card, with logging
@@ -118,52 +115,6 @@ class GameEngine(
     }
     fun getWinnerName(): String? {
         return players.firstOrNull { it.hand.isEmpty() }?.name
-    }
-
-    /**
-     * Apply special effects based on the card type
-     */
-    fun applyCardEffect(card: Card) {
-        when (card.type) {
-            CardType.REVERSE -> {
-                // Reverse the turn order
-                gameStatus.reverseOrder()
-            }
-
-            CardType.SKIP -> {
-                // Skip the next player
-                gameStatus.skipNextPlayer()
-            }
-
-            CardType.DRAW_TWO -> {
-                // Next player draws 2 cards and is skipped
-                val next = gameStatus.peekNextPlayer()
-                repeat(2) {
-                    drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
-                }
-                gameStatus.skipNextPlayer()
-            }
-
-            CardType.WILD, CardType.WILD_DRAW_FOUR -> {
-                // Choose a random color
-                card.randomColor()
-                if (card.type == CardType.WILD_DRAW_FOUR) {
-                    // Next player draws 4 and is skipped
-                    val next = gameStatus.peekNextPlayer()
-                    repeat(4) {
-                        drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
-                    }
-                    gameStatus.skipNextPlayer()
-                } else {
-                    // Just change color, no skip
-                    gameStatus.nextPlayer()
-                }
-            }
-
-            else -> {
-                // Normal number card, do nothing
-            }
-        }
     }
 
 

@@ -24,7 +24,7 @@ data class Card(
         return if (type == CardType.NUMBER)
             "${color.name}:${number}"
         else
-            "${color.name}:${type.name.take(3)}"
+            "${color.name}:${type.name}"
     }
 
     fun randomColor() {

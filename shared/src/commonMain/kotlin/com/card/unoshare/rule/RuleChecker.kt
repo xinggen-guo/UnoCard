@@ -14,7 +14,7 @@ object RuleChecker {
         return card.color == topCard.color ||
                 (card.type == CardType.NUMBER && card.number == topCard.number) ||
                 (card.type == topCard.type && card.type != CardType.NUMBER) ||
-                card.type == CardType.WILD
+                card.type == CardType.WILD || card.type == CardType.WILD_DRAW_FOUR
     }
 
     fun isPlayable(card: Card, topCard: Card): Boolean {
