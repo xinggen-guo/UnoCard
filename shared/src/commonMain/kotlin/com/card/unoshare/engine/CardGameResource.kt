@@ -2,9 +2,12 @@ package com.card.unoshare.engine
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.card.unoshare.model.Card
+import com.card.unoshare.language.I18N
 import com.card.unoshare.util.CardShuffler
 import com.card.unoshare.util.toImageBitmap
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.ResourceEnvironment
 import unocard.shared.generated.resources.Res
 
 /**
@@ -16,13 +19,23 @@ object CardGameResource {
 
     val cards = mutableListOf<Card>()
 
-    var bgWelcome: String? = null
+    var bgWelcome: String
 
-    var bgClockwise: String? = null
+    var bgClockwise: String
 
-    var bgCounter:String? = null
+    var bgCounter:String
 
-    var startOrRefresh: String? = null
+    var startOrRefresh: String
+
+    val i18n: I18N by lazy {
+        //todo
+        val locale = "en"
+        when {
+            locale.contains("zh", ignoreCase = true) -> I18N.ZH_CN
+            locale.contains("ja", ignoreCase = true) -> I18N.JA_JP
+            else -> I18N.EN_US
+        }
+    }
 
     init {
         bgWelcome = "files/bg_welcome.png"
@@ -34,7 +47,12 @@ object CardGameResource {
 
     @OptIn(ExperimentalResourceApi::class)
     suspend fun getBgWelComeImage():ImageBitmap{
-        return Res.readBytes(bgWelcome?:"").toImageBitmap()
+        return Res.readBytes(bgWelcome).toImageBitmap()
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getStartOrRefresh():ImageBitmap{
+        return Res.readBytes(startOrRefresh).toImageBitmap()
     }
 
 }

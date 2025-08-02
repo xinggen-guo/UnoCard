@@ -1,4 +1,4 @@
-package com.card.unoshare.model
+package com.card.unoshare.language
 
 /**
  * @author xinggen.guo

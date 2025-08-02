@@ -2,9 +2,11 @@ package com.card.unoshare.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -25,23 +27,63 @@ import com.card.unoshare.rule.SpecialRuleSet
  */
 
 @Composable
-fun FullScreenBackgroundWithImage(){
-    // Step 1: load image
-    val image by produceState<ImageBitmap?>(initialValue = null) {
+fun rendCardInitPage(){
+
+    val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
     }
 
-    // Step 2:  load success
-    Box(modifier = Modifier.fillMaxSize()) {
-        image?.let {
+    bgWelcomeImg?.let {
+        Image(
+            bitmap = it,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+
+    var gameStarted by remember { mutableStateOf(false) }
+
+    if(!gameStarted){
+        WelcomeScreen(onStartClick = {
+            gameStarted = true
+        })
+    }else{
+        UnoGameScreen()
+    }
+
+
+}
+
+@Composable
+fun WelcomeScreen(onStartClick: () -> Unit) {
+
+    val startOrRefreshImg by produceState<ImageBitmap?>(initialValue = null) {
+        value = CardGameResource.getStartOrRefresh()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        startOrRefreshImg?.let {
             Image(
                 bitmap = it,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                contentScale = ContentScale.None,
+                modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+                    onStartClick()
+                }
+            )
+            Text(
+                CardGameResource.i18n.info_welcome(),
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
+
 }
 
 @Composable
@@ -57,7 +99,6 @@ fun UnoGameScreen() {
     var allHands by remember { mutableStateOf(mapOf<String, List<Card>>()) }
     var winner by remember { mutableStateOf<String?>(null) }
 
-    // 🟡 初始化游戏（只执行一次）
     // 🟡 Initialize the game once
     LaunchedEffect(Unit) {
         gameEngine.startGame()
@@ -69,22 +110,18 @@ fun UnoGameScreen() {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
         Text("Current Player: $currentPlayerName")
-        // 当前出牌玩家
         // Current playing player
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text("Top Card: $topCard")
-        // 当前出牌堆最上方的牌
         // Top card of discard pile
 
         Spacer(modifier = Modifier.height(16.dp))
 
         allHands.forEach { (playerName, hand) ->
             Text("$playerName's Hand (${hand.size} cards):")
-            // 显示玩家名字与手牌数量
             // Show player name and card count
-
             Row {
                 hand.forEach { card ->
                     Text(
@@ -102,34 +139,38 @@ fun UnoGameScreen() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = {
-            gameEngine.startGame()
-            currentPlayerName = gameEngine.getCurrentPlayerName()
-            topCard = gameEngine.getTopCard()?.displayText() ?: "None"
-            allHands = gameEngine.getAllPlayerHands()
-            winner = null
-        }) {
-            Text("Deal Cards")
-            // 发牌按钮
-            // Deal cards
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Button(onClick = {
-            if (winner == null) {
-                gameEngine.playRoundByAi()
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = {
+                gameEngine.startGame()
                 currentPlayerName = gameEngine.getCurrentPlayerName()
                 topCard = gameEngine.getTopCard()?.displayText() ?: "None"
                 allHands = gameEngine.getAllPlayerHands()
-                winner = gameEngine.getWinnerName()
+                winner = null
+            }) {
+                Text("Deal Cards")
+                // Deal cards
             }
-        }) {
-            Text("Play Turn")
-            // 出牌并切换玩家
-            // Play card and switch
-        }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(onClick = {
+                if (winner == null) {
+                    gameEngine.playRoundByAi()
+                    currentPlayerName = gameEngine.getCurrentPlayerName()
+                    topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+                    allHands = gameEngine.getAllPlayerHands()
+                    winner = gameEngine.getWinnerName()
+                }
+            }) {
+                Text("Play Turn")
+                // Play card and switch
+            }
+
+        }
         winner?.let {
             Spacer(modifier = Modifier.height(16.dp))
             Text("🎉 Winner: $it 🎉", fontSize = 20.sp, color = Color.Red)
