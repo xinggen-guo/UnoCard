@@ -12,7 +12,7 @@ import kotlin.random.Random
 object DeckManager {
     fun createDeck(): MutableList<Card> {
         val deck = mutableListOf<Card>()
-        val colors = CardColor.entries.filter { it != CardColor.WILD }
+        val colors = CardColor.entries
         val numbers = (0..9)
         val actions = listOf(CardType.SKIP, CardType.REVERSE, CardType.DRAW_TWO)
 
@@ -27,14 +27,10 @@ object DeckManager {
                     deck.add(Card(color, action))
                 }
             }
-        }
 
-        // Wild cards
-        repeat(4) {
-            deck.add(Card(CardColor.WILD, CardType.WILD))
-            deck.add(Card(CardColor.WILD, CardType.WILD_DRAW_FOUR))
+            deck.add(Card(color, CardType.WILD))
+            deck.add(Card(color, CardType.WILD_DRAW_FOUR))
         }
-
         return deck
     }
 

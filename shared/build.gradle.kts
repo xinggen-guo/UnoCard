@@ -25,16 +25,20 @@ kotlin {
     }
 
     sourceSets {
-        commonMain.dependencies {
-            //put your multiplatform dependencies here
-            with(compose) {
-                implementation(runtime)
-                implementation(ui)
-                implementation(foundation)
-                implementation(material)
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+        commonMain{
+            resources.srcDir("src/commonMain/resources")
+            dependencies {
+                with(compose) {
+                    implementation(runtime)
+                    implementation(ui)
+                    implementation(foundation)
+                    implementation(material)
+                    implementation(components.resources)
+                    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+                }
             }
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }

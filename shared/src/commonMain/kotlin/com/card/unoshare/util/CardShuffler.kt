@@ -1,5 +1,6 @@
 package com.card.unoshare.util
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
@@ -12,8 +13,9 @@ import com.card.unoshare.model.CardType
 object CardShuffler {
     fun createDeck(): List<Card> {
         val deck = mutableListOf<Card>()
-        val colors = CardColor.values().filter { it != CardColor.WILD }
+        val colors = CardColor.entries
 
+        //init cards
         for (color in colors) {
             // 数字卡：0 一张，1-9 各两张
             deck.add(Card(color, CardType.NUMBER, 0))
@@ -28,12 +30,9 @@ object CardShuffler {
                 deck.add(Card(color, CardType.REVERSE))
                 deck.add(Card(color, CardType.DRAW_TWO))
             }
-        }
-
-        // 万用卡：Wild & +4 各四张
-        repeat(4) {
-            deck.add(Card(CardColor.WILD, CardType.WILD))
-            deck.add(Card(CardColor.WILD, CardType.WILD_DRAW_FOUR))
+            // 万用卡：Wild & +4 各四张  每个颜色1张
+            deck.add(Card(color, CardType.WILD))
+            deck.add(Card(color, CardType.WILD_DRAW_FOUR))
         }
 
         return deck.shuffled()

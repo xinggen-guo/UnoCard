@@ -19,18 +19,19 @@ class GameEngine(
     private val rules: SpecialRuleSet) {
     private val gameStatus = GameStatus(players)
     // The draw pile (cards not yet drawn)
-    private val drawPile = CardShuffler.createDeck().toMutableList()
+    private val drawPile = mutableListOf<Card>()
     // The discard pile (cards that have been played)
     private val discardPile = mutableListOf<Card>()
 
     // Game log for debugging or UI
     private val gameLog = mutableListOf<String>()
 
+    private val allCards = mutableListOf<Card>()
 
     fun startGame(initialHandSize: Int = 7) {
         gameStatus.gameStart = true
         drawPile.clear()
-        drawPile.addAll(CardShuffler.createDeck().shuffled())
+        drawPile.addAll(CardGameResource.cards)
         players.forEach { it.hand.clear() }
         repeat(7) { players.forEach { p -> p.drawCard(drawPile.removeAt(0)) } }
         // 发牌后，从 drawPile 中放一个符合规则的牌进入 discardPile

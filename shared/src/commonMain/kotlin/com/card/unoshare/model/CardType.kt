@@ -16,4 +16,16 @@ enum class CardType {
     fun isWild(): Boolean {
         return this == WILD || this == WILD_DRAW_FOUR
     }
+
+    fun getCardTypeResourceName():String{
+        return when(this){
+            NUMBER -> ""
+            SKIP -> "s"
+            REVERSE -> "r"
+            DRAW_TWO -> "d2"
+            WILD -> "w"
+            WILD_DRAW_FOUR -> "w4"
+        }
+
+    }
 }

@@ -1,23 +1,48 @@
 package com.card.unoshare.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameEngine
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.Player
 import com.card.unoshare.rule.SpecialRuleSet
+
 
 /**
  * @author xinggen.guo
  * @date 31/07/2025 14:52
  * @description
  */
+
+@Composable
+fun FullScreenBackgroundWithImage(){
+    // Step 1: load image
+    val image by produceState<ImageBitmap?>(initialValue = null) {
+        value = CardGameResource.getBgWelComeImage()
+    }
+
+    // Step 2:  load success
+    Box(modifier = Modifier.fillMaxSize()) {
+        image?.let {
+            Image(
+                bitmap = it,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
 
 @Composable
 fun UnoGameScreen() {

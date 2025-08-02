@@ -6,5 +6,14 @@ package com.card.unoshare.model
  * @description
  */
 enum class CardColor {
-    RED, GREEN, BLUE, YELLOW, WILD
+    RED, GREEN, BLUE, YELLOW;
+
+    fun cardColorResourceName(): String {
+        return when (this) {
+            RED -> "r"
+            GREEN -> "g"
+            BLUE -> "b"
+            YELLOW -> "y"
+        }
+    }
 }

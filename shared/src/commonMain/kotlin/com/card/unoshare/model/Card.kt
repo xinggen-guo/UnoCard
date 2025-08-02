@@ -8,8 +8,16 @@ package com.card.unoshare.model
 data class Card(
     var color: CardColor,
     val type: CardType,
-    val number: Int? = null
+    val number: Int? = null,
+    var frontBitmapName: String? = null,
+    var darkBitmapName: String? = null
 ) {
+
+    init {
+        frontBitmapName = "front_${getImageShortName()}"
+        darkBitmapName = "dark_${getImageShortName()}"
+    }
+
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
 
     fun displayText(): String {
@@ -20,11 +28,10 @@ data class Card(
     }
 
     fun randomColor() {
-        val cardColor = CardColor.entries.random()
-        if (CardColor.WILD == cardColor) {
-            randomColor()
-        } else {
-            color = cardColor
-        }
+        color = CardColor.entries.random()
+    }
+
+    fun getImageShortName(): String {
+        return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString()}"
     }
 }
