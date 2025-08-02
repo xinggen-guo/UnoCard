@@ -4,7 +4,6 @@ import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
 import com.card.unoshare.model.Player
-import com.card.unoshare.rule.EffectApplier
 import com.card.unoshare.rule.EffectApplier.applyCardEffect
 import com.card.unoshare.rule.RuleChecker
 import com.card.unoshare.rule.SpecialRuleSet
@@ -27,11 +26,10 @@ class GameEngine(
     // Game log for debugging or UI
     private val gameLog = mutableListOf<String>()
 
-    private val allCards = mutableListOf<Card>()
-
     fun startGame(initialHandSize: Int = 7) {
         gameStatus.gameStart = true
         drawPile.clear()
+        discardPile.clear()
         drawPile.addAll(CardGameResource.cards)
         players.forEach { it.hand.clear() }
         repeat(7) { players.forEach { p -> p.drawCard(drawPile.removeAt(0)) } }
@@ -83,6 +81,8 @@ class GameEngine(
 
     fun getTopCard(): Card = discardPile.last()
 
+    fun getDiscardPile(): List<Card> = discardPile
+
     private fun reshuffleDiscardIntoDrawPile() {
         val lastCard = discardPile.removeLast()
         drawPile.addAll(CardShuffler.shuffle(discardPile))
@@ -117,5 +117,8 @@ class GameEngine(
         return players.firstOrNull { it.hand.isEmpty() }?.name
     }
 
+    fun getAllPlayers(): List<Player> {
+        return players
+    }
 
 }

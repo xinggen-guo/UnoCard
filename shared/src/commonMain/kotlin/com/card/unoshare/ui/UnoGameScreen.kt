@@ -1,8 +1,6 @@
 package com.card.unoshare.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -16,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameEngine
+import com.card.unoshare.engine.GameInitializer
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.Player
 import com.card.unoshare.rule.RuleChecker
-import com.card.unoshare.rule.SpecialRuleSet
 
 
 /**
@@ -28,13 +26,14 @@ import com.card.unoshare.rule.SpecialRuleSet
  * @description
  */
 
+val offset = 15
+
 @Composable
-fun rendCardInitPage(){
+fun rendCardInitPage() {
 
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
     }
-
     bgWelcomeImg?.let {
         Image(
             bitmap = it,
@@ -46,16 +45,17 @@ fun rendCardInitPage(){
 
     var gameStarted by remember { mutableStateOf(false) }
 
-    if(!gameStarted){
+    if (!gameStarted) {
         WelcomeScreen(onStartClick = {
+            val gameEngine = GameInitializer.gameEngine
+            gameEngine.startGame()
             gameStarted = true
         })
-    }else{
-        UnoGameScreen()
+    } else {
+        StartCardGameScreen()
     }
-
-
 }
+
 
 @Composable
 fun WelcomeScreen(onStartClick: () -> Unit) {
@@ -63,7 +63,6 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
     val startOrRefreshImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getStartOrRefresh()
     }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,17 +84,12 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
             )
         }
     }
-
 }
 
 @Composable
-fun UnoGameScreen() {
+fun StartCardGameScreen() {
 
-    val p1 = remember { Player("1", "Alice", isAI = true) }
-    val p2 = remember { Player("2", "You", isAI = false) }
-    val p3 = remember { Player("3", "Bella", isAI = true) }
-    val gameEngine = remember { GameEngine(listOf(p1, p2, p3), SpecialRuleSet()) }
-
+    val gameEngine = GameInitializer.gameEngine
     var currentPlayerName by remember { mutableStateOf("") }
     var topCard by remember { mutableStateOf("") }
     var allHands by remember { mutableStateOf(mapOf<Player, List<Card>>()) }
@@ -105,8 +99,52 @@ fun UnoGameScreen() {
     LaunchedEffect(Unit) {
         gameEngine.startGame()
         currentPlayerName = gameEngine.getCurrentPlayerName()
-        topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+        topCard = gameEngine.getTopCard().displayText()
         allHands = gameEngine.getAllPlayerHands()
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        rendDiscardArea(gameEngine)
+        var renderRefreshCards by remember { mutableStateOf(false) }
+        renderDrawArea(gameEngine) {
+            renderRefreshCards = !renderRefreshCards
+        }
+
+
+        key(renderRefreshCards){
+
+        }
+
+        gameEngine.getAllPlayers().forEach {
+            when (it.direction) {
+                Alignment.BottomCenter -> {
+                    var refreshHandSize  by remember { mutableStateOf(it.hand.size) }
+                    key(refreshHandSize){
+                        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                            BottomHandStack(it.hand, it, gameEngine) {
+                                currentPlayerName = gameEngine.getCurrentPlayerName()
+                                topCard = gameEngine.getTopCard().displayText()
+                                allHands = gameEngine.getAllPlayerHands()
+                                winner = gameEngine.getWinnerName()
+                            }
+                        }
+                    }
+                }
+
+                Alignment.CenterStart -> {
+                    Box(modifier = Modifier.align(Alignment.CenterStart)) {
+                        LeftHandStack(it.hand, it, gameEngine)
+                    }
+                }
+
+                Alignment.CenterEnd -> {
+                    Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                        RightHandStack(it.hand, it, gameEngine)
+                    }
+                }
+            }
+        }
+
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -118,51 +156,8 @@ fun UnoGameScreen() {
 
         Text("Top Card: $topCard")
         // Top card of discard pile
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        allHands.forEach { (player, hand) ->
-            val playerName= player.name
-            Text("$playerName's Hand (${hand.size} cards):")
-            // Show player name and card count
-            val playerCard = player == gameEngine.getCurrentPlayer()
-            var canDraw = false
-            Row {
-                hand.forEach { card ->
-                    val bgColor = if (playerCard) {
-                        canDraw = RuleChecker.isValidMove(card,gameEngine.getTopCard())
-                        if(canDraw){
-                            Color.Green
-                        }else{
-                            Color.Red
-                        }
-                    } else {
-                        Color.Transparent
-                    }
-
-                    Text(
-                        text = card.displayText(),
-                        modifier = Modifier
-                            .background(bgColor)
-                            .padding(4.dp)
-                            .border(1.dp, Color.Gray)
-                            .padding(4.dp)
-                            .clickable(enabled = canDraw && !player.isAI, onClick = {
-                                gameEngine.playTurn(card, player)
-                                topCard = gameEngine.getTopCard()?.displayText() ?: "None"
-                                allHands = gameEngine.getAllPlayerHands()
-                                winner = gameEngine.getWinnerName()
-                            }),
-                        fontSize = 12.sp
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Row (
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
@@ -170,7 +165,7 @@ fun UnoGameScreen() {
             Button(onClick = {
                 gameEngine.startGame()
                 currentPlayerName = gameEngine.getCurrentPlayerName()
-                topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+                topCard = gameEngine.getTopCard().displayText()
                 allHands = gameEngine.getAllPlayerHands()
                 winner = null
             }) {
@@ -184,7 +179,7 @@ fun UnoGameScreen() {
                 if (winner == null) {
                     gameEngine.playRoundByAi()
                     currentPlayerName = gameEngine.getCurrentPlayerName()
-                    topCard = gameEngine.getTopCard()?.displayText() ?: "None"
+                    topCard = gameEngine.getTopCard().displayText()
                     allHands = gameEngine.getAllPlayerHands()
                     winner = gameEngine.getWinnerName()
                 }
@@ -196,9 +191,179 @@ fun UnoGameScreen() {
         winner?.let {
             Spacer(modifier = Modifier.height(16.dp))
             Text("🎉 Winner: $it 🎉", fontSize = 20.sp, color = Color.Red)
-            // 胜者提示
             // Winner message
         }
     }
-
 }
+
+@Composable
+fun renderDrawArea(gameEngine: GameEngine,renderCard: () -> Unit) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        val startOrRefreshImg by produceState<ImageBitmap?>(initialValue = null) {
+            value = CardGameResource.getStartOrRefresh()
+        }
+        startOrRefreshImg?.let {
+            val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
+            val totalWidth = it.width.dp
+            val offsetX = - (area - totalWidth)/2
+            Image(
+                bitmap = it,
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier.offset(x = offsetX).clickable(enabled = !gameEngine.getCurrentPlayer().isAI, onClick = {
+                    gameEngine.drawCard(gameEngine.getCurrentPlayer())
+                    renderCard()
+                })
+            )
+        }
+    }
+}
+
+@Composable
+fun rendDiscardArea(gameEngine: GameEngine) {
+    gameEngine.getDiscardPile().let {
+        val playCards = if (it.size > 3) {
+            it.subList(it.size - 3, it.size)
+        } else {
+            it
+        }
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            playCards.forEachIndexed { index, card ->
+                val imageBitmap by produceState<ImageBitmap?>(
+                    initialValue = null,
+                    card.frontBitmapName
+                ) {
+                    value = card.getFrontImg()
+                }
+                val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
+                val totalWidth = (playCards.size - 1) * offset
+                val startX = (area - totalWidth.dp) / 2  // 起始点偏移到 area 中心
+                val offsetX = startX + (index * offset).dp
+                imageBitmap?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = null,
+                        contentScale = ContentScale.None,
+                        modifier = Modifier.offset(x = offsetX)
+                    )
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun LeftHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(start = 8.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        cards.forEachIndexed { index, card ->
+            val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
+                value = card.getFrontImg()
+            }
+
+            val totalHeight = (cards.size - 1) * offset
+            val startY = -totalHeight / 2  // 第0张卡的offset起点
+            val offsetY = startY + index * offset
+
+            imageBitmap?.let {
+                Image(
+                    bitmap = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.None,
+                    modifier = Modifier.offset(y = offsetY.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RightHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(end = 8.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        cards.forEachIndexed { index, card ->
+            val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
+                value = card.getFrontImg()
+            }
+
+            val totalHeight = (cards.size - 1) * offset
+            val startY = -totalHeight / 2  // 第0张卡的offset起点
+            val offsetY = startY + index * offset
+
+            imageBitmap?.let {
+                Image(
+                    bitmap = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.None,
+                    modifier = Modifier.offset(y = offsetY.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomHandStack(
+    cards: MutableList<Card>,
+    player: Player,
+    gameEngine: GameEngine,
+    playCard: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp, top = 8.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        cards.forEachIndexed { index, card ->
+            var canPlayCard = !player.isAI && player == gameEngine.getCurrentPlayer() && RuleChecker.isPlayable(
+                card,
+                GameInitializer.gameEngine.getTopCard()
+            )
+            val imageBitmap by produceState<ImageBitmap?>(initialValue = null, canPlayCard) {
+                value = if (!player.isAI) {
+                    if (canPlayCard) {
+                        card.getFrontImg()
+                    } else {
+                        card.getDarkImg()
+                    }
+                } else {
+                    card.getFrontImg()
+                }
+            }
+            imageBitmap?.let {
+                val totalWidth = (cards.size - 1) * offset
+                val startX = -totalWidth / 2  // 第0张卡的offset起点
+                val offsetX = startX + index * offset
+                Image(
+                    bitmap = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.None,
+                    modifier = Modifier.align(Alignment.Center).offset(x = offsetX.dp)
+                        .clickable(enabled = canPlayCard, onClick = {
+                            GameInitializer.gameEngine.playTurn(card, player)
+                            playCard()
+                        })
+                )
+            }
+        }
+    }
+}
+

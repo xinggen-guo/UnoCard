@@ -7,4 +7,4 @@ import androidx.compose.ui.window.ComposeUIViewController
  * @date 31/07/2025 15:02
  * @description
  */
-fun MainViewController() = ComposeUIViewController { UnoGameScreen() }
+fun MainViewController() = ComposeUIViewController { StartCardGameScreen() }

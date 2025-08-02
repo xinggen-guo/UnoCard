@@ -1,5 +1,10 @@
 package com.card.unoshare.model
 
+import androidx.compose.ui.graphics.ImageBitmap
+import com.card.unoshare.util.toImageBitmap
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import unocard.shared.generated.resources.Res
+
 /**
  * @author xinggen.guo
  * @date 31/07/2025 13:51
@@ -15,7 +20,11 @@ data class Card(
 
     init {
         frontBitmapName = "front_${getImageShortName()}"
-        darkBitmapName = "dark_${getImageShortName()}"
+        if (isWild()) {
+            darkBitmapName = frontBitmapName
+        } else {
+            darkBitmapName = "dark_${getImageShortName()}"
+        }
     }
 
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
@@ -32,6 +41,16 @@ data class Card(
     }
 
     fun getImageShortName(): String {
-        return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString()}"
+        return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getDarkImg(): ImageBitmap {
+        return Res.readBytes("files/${darkBitmapName}.png").toImageBitmap()
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getFrontImg(): ImageBitmap {
+        return Res.readBytes("files/${frontBitmapName}.png").toImageBitmap()
     }
 }
