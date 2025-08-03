@@ -7,7 +7,9 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -26,7 +28,9 @@ import com.card.unoshare.rule.RuleChecker
  * @description
  */
 
-val offset = 15
+const val offset = 15
+val textShowColor = Color.Gray
+val textPlayColor = Color.White
 
 @Composable
 fun rendCardInitPage() {
@@ -94,79 +98,128 @@ fun StartCardGameScreen() {
     var topCard by remember { mutableStateOf("") }
     var allHands by remember { mutableStateOf(mapOf<Player, List<Card>>()) }
     var winner by remember { mutableStateOf<String?>(null) }
+    var gameClockWise by remember { mutableStateOf(gameEngine.gameClockwise()) }
+    var lastPlayerPlayCard by remember { mutableStateOf("") }
 
     // 🟡 Initialize the game once
     LaunchedEffect(Unit) {
         gameEngine.startGame()
         currentPlayerName = gameEngine.getCurrentPlayerName()
         topCard = gameEngine.getTopCard().displayText()
+        lastPlayerPlayCard = gameEngine.getLastDirectionAndCardInfo()
         allHands = gameEngine.getAllPlayerHands()
+        gameClockWise = gameEngine.gameClockwise()
     }
     Box(modifier = Modifier.fillMaxSize()) {
-
-        rendDiscardArea(gameEngine)
+        renderDiscardArea(gameEngine)
         var renderRefreshCards by remember { mutableStateOf(false) }
         renderDrawArea(gameEngine) {
             renderRefreshCards = !renderRefreshCards
         }
 
+        Text(
+            lastPlayerPlayCard,
+            color = textShowColor,
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 15.dp)
+        )
 
-        key(renderRefreshCards){
+        winner?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "🎉 Winner: $it 🎉",
+                fontSize = 20.sp,
+                color = Color.Red,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 30.dp)
+            )
+        }
 
+        val imageClockBitmap by produceState<ImageBitmap?>(initialValue = null, gameClockWise) {
+            value = if (gameClockWise) {
+                CardGameResource.getClockWise()
+            } else {
+                CardGameResource.getCounterWise()
+            }
+        }
+
+        imageClockBitmap?.let {
+            Image(
+                bitmap = it,
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
 
         gameEngine.getAllPlayers().forEach {
+            val canPlay = it == gameEngine.getCurrentPlayer()
+            val textColor = if(canPlay) textPlayColor else textShowColor
             when (it.direction) {
                 Alignment.BottomCenter -> {
-                    var refreshHandSize  by remember { mutableStateOf(it.hand.size) }
-                    key(refreshHandSize){
-                        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    key(renderRefreshCards){
+                        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+                            val tipText =
+                                if (canPlay) gameEngine.getTipInfoYouPlayer() else gameEngine.getPlayerPositionStr(it)
+                            key(currentPlayerName) { Text(
+                                tipText,
+                                color = textColor,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    .padding(bottom = 3.dp))
+                            }
                             BottomHandStack(it.hand, it, gameEngine) {
                                 currentPlayerName = gameEngine.getCurrentPlayerName()
                                 topCard = gameEngine.getTopCard().displayText()
+                                lastPlayerPlayCard = gameEngine.getLastDirectionAndCardInfo()
                                 allHands = gameEngine.getAllPlayerHands()
                                 winner = gameEngine.getWinnerName()
+                                gameClockWise = gameEngine.gameClockwise()
                             }
                         }
                     }
                 }
 
                 Alignment.CenterStart -> {
-                    Box(modifier = Modifier.align(Alignment.CenterStart)) {
+                    Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterStart)) {
                         LeftHandStack(it.hand, it, gameEngine)
+                        Text(
+                            gameEngine.getPlayerPositionStr(it),
+                            color = textColor,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                                .padding(start = 10.dp))
                     }
                 }
 
                 Alignment.CenterEnd -> {
-                    Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                        RightHandStack(it.hand, it, gameEngine)
+                    Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterEnd)) {
+                        Text(
+                            gameEngine.getPlayerPositionStr(it),
+                            color = textColor,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                                .padding(end = 10.dp))
+                            RightHandStack(it.hand, it, gameEngine)
                     }
+
                 }
             }
         }
 
+
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize()
+        .padding(16.dp),
+        verticalArrangement = Arrangement.Bottom
+    ) {
 
-        Text("Current Player: $currentPlayerName")
-        // Current playing player
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Top Card: $topCard")
-        // Top card of discard pile
-        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ) {
             Button(onClick = {
                 gameEngine.startGame()
                 currentPlayerName = gameEngine.getCurrentPlayerName()
                 topCard = gameEngine.getTopCard().displayText()
                 allHands = gameEngine.getAllPlayerHands()
+                gameClockWise = gameEngine.gameClockwise()
                 winner = null
             }) {
                 Text("Deal Cards")
@@ -182,17 +235,15 @@ fun StartCardGameScreen() {
                     topCard = gameEngine.getTopCard().displayText()
                     allHands = gameEngine.getAllPlayerHands()
                     winner = gameEngine.getWinnerName()
+                    gameClockWise = gameEngine.gameClockwise()
+                    lastPlayerPlayCard = gameEngine.getLastDirectionAndCardInfo()
                 }
             }) {
                 Text("Play Turn")
             }
 
         }
-        winner?.let {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("🎉 Winner: $it 🎉", fontSize = 20.sp, color = Color.Red)
-            // Winner message
-        }
+
     }
 }
 
@@ -224,7 +275,7 @@ fun renderDrawArea(gameEngine: GameEngine,renderCard: () -> Unit) {
 }
 
 @Composable
-fun rendDiscardArea(gameEngine: GameEngine) {
+fun renderDiscardArea(gameEngine: GameEngine) {
     gameEngine.getDiscardPile().let {
         val playCards = if (it.size > 3) {
             it.subList(it.size - 3, it.size)
@@ -239,17 +290,17 @@ fun rendDiscardArea(gameEngine: GameEngine) {
             playCards.forEachIndexed { index, card ->
                 val imageBitmap by produceState<ImageBitmap?>(
                     initialValue = null,
-                    card.frontBitmapName
+                    card.cardBitmapName
                 ) {
-                    value = card.getFrontImg()
+                    value = card.getCardImg()
                 }
                 val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
                 val totalWidth = (playCards.size - 1) * offset
                 val startX = (area - totalWidth.dp) / 2  // 起始点偏移到 area 中心
                 val offsetX = startX + (index * offset).dp
-                imageBitmap?.let {
+                imageBitmap?.let { img ->
                     Image(
-                        bitmap = it,
+                        bitmap = img,
                         contentDescription = null,
                         contentScale = ContentScale.None,
                         modifier = Modifier.offset(x = offsetX)
@@ -262,7 +313,7 @@ fun rendDiscardArea(gameEngine: GameEngine) {
 }
 
 @Composable
-fun LeftHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) {
+fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngine) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
@@ -271,8 +322,15 @@ fun LeftHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) 
     ) {
         cards.forEachIndexed { index, card ->
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getFrontImg()
+                value = card.getCardImg()
             }
+
+            val canPlayCard = player == gameEngine.getCurrentPlayer()
+            val colorFilter = if (!canPlayCard) ColorFilter.tint(
+                color = Color(0xFF555555),
+                blendMode = BlendMode.Modulate
+            )
+            else null
 
             val totalHeight = (cards.size - 1) * offset
             val startY = -totalHeight / 2  // 第0张卡的offset起点
@@ -281,6 +339,7 @@ fun LeftHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) 
             imageBitmap?.let {
                 Image(
                     bitmap = it,
+                    colorFilter = colorFilter,
                     contentDescription = null,
                     contentScale = ContentScale.None,
                     modifier = Modifier.offset(y = offsetY.dp)
@@ -291,7 +350,7 @@ fun LeftHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) 
 }
 
 @Composable
-fun RightHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine) {
+fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngine) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
@@ -300,8 +359,14 @@ fun RightHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine)
     ) {
         cards.forEachIndexed { index, card ->
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getFrontImg()
+                value = card.getCardImg()
             }
+            val canPlayCard = player == gameEngine.getCurrentPlayer()
+            val colorFilter = if (!canPlayCard) ColorFilter.tint(
+                color = Color(0xFF555555),
+                blendMode = BlendMode.Modulate
+            )
+            else null
 
             val totalHeight = (cards.size - 1) * offset
             val startY = -totalHeight / 2  // 第0张卡的offset起点
@@ -310,6 +375,7 @@ fun RightHandStack(cards: MutableList<Card>, it: Player, gameEngine: GameEngine)
             imageBitmap?.let {
                 Image(
                     bitmap = it,
+                    colorFilter = colorFilter,
                     contentDescription = null,
                     contentScale = ContentScale.None,
                     modifier = Modifier.offset(y = offsetY.dp)
@@ -333,27 +399,26 @@ fun BottomHandStack(
         contentAlignment = Alignment.BottomCenter
     ) {
         cards.forEachIndexed { index, card ->
-            var canPlayCard = !player.isAI && player == gameEngine.getCurrentPlayer() && RuleChecker.isPlayable(
+            val canPlayCard = player == gameEngine.getCurrentPlayer() && RuleChecker.isPlayable(
                 card,
                 GameInitializer.gameEngine.getTopCard()
             )
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null, canPlayCard) {
-                value = if (!player.isAI) {
-                    if (canPlayCard) {
-                        card.getFrontImg()
-                    } else {
-                        card.getDarkImg()
-                    }
-                } else {
-                    card.getFrontImg()
-                }
+                value =  card.getCardImg()
             }
+
             imageBitmap?.let {
                 val totalWidth = (cards.size - 1) * offset
                 val startX = -totalWidth / 2  // 第0张卡的offset起点
                 val offsetX = startX + index * offset
+                val colorFilter = if (!canPlayCard) ColorFilter.tint(
+                    color = Color(0xFF555555),
+                    blendMode = BlendMode.Modulate
+                )
+                else null
                 Image(
                     bitmap = it,
+                    colorFilter = colorFilter,
                     contentDescription = null,
                     contentScale = ContentScale.None,
                     modifier = Modifier.align(Alignment.Center).offset(x = offsetX.dp)

@@ -39,8 +39,8 @@ object CardGameResource {
 
     init {
         bgWelcome = "files/bg_welcome.png"
-        bgClockwise = "files/bg_clockwise.png"
-        bgCounter = "files/bg_counter.png"
+        bgClockwise = "files/icon_clockwise.png"
+        bgCounter = "files/icon_counter.png"
         startOrRefresh = "files/back.png"
         cards.addAll(CardShuffler.createDeck().shuffled())
     }
@@ -55,4 +55,13 @@ object CardGameResource {
         return Res.readBytes(startOrRefresh).toImageBitmap()
     }
 
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getClockWise(): ImageBitmap {
+        return Res.readBytes(bgClockwise).toImageBitmap()
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getCounterWise(): ImageBitmap {
+        return Res.readBytes(bgCounter).toImageBitmap()
+    }
 }

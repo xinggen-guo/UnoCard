@@ -1,5 +1,6 @@
 package com.card.unoshare.engine
 
+import androidx.compose.ui.Alignment
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
@@ -119,6 +120,27 @@ class GameEngine(
 
     fun getAllPlayers(): List<Player> {
         return players
+    }
+
+    fun gameClockwise():Boolean = gameStatus.isCounterWise
+
+    fun getTipInfoYouPlayer():String{
+        return CardGameResource.i18n.info_yourTurn()
+    }
+
+    fun getLastDirectionAndCardInfo(): String {
+        return if (discardPile.isEmpty()) {
+            getTopCard().displayText()
+        } else {
+            CardGameResource.i18n.act_playCard(
+                gameStatus.getLastPlayer().getDirectionPosition(),
+                getTopCard().displayText()
+            )
+        }
+    }
+
+    fun getPlayerPositionStr(player: Player): String {
+        return CardGameResource.i18n.act_playCard(player.getDirectionPosition())
     }
 
 }

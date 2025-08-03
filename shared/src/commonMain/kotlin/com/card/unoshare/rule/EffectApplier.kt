@@ -4,7 +4,6 @@ import com.card.unoshare.engine.GameController
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
-import com.card.unoshare.model.Player
 
 /**
  * @author xinggen.guo
@@ -18,7 +17,7 @@ object EffectApplier {
             card = card,
             gameStatus = GameStatus(
                 currentPlayerIndex = gameController.getCurrentPlayerIndex(),
-                isClockwise = gameController.isClockwise(),
+                isCounterWise = gameController.isClockwise(),
                 players = gameController.getPlayers()
             ),
             drawPile = gameController.getDeck()
@@ -59,9 +58,6 @@ object EffectApplier {
                         drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
                     }
                     gameStatus.skipNextPlayer()
-                } else {
-                    // Just change color, no skip
-                    gameStatus.nextPlayer()
                 }
             }
 

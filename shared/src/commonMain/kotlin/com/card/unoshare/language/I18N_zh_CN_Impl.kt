@@ -16,6 +16,7 @@ class I18N_zh_CN_Impl : I18N {
     override fun act_drawCardCount(player: Int, count: Int) = "${p(player)}: 摸 $count 张牌"
     override fun act_pass(player: Int) = "${p(player)}: 过牌"
     override fun act_playCard(player: Int, card: String) = "${p(player)}: $card"
+    override fun act_playCard(player: Int) = "${p(player)}"
     override fun act_playDraw2(from: Int, to: Int, count: Int) = "${p(from)}: 令${p(to)}摸 $count 张牌"
     override fun act_playRev(player: Int) = "${p(player)}: 改变方向"
     override fun act_playSkip(from: Int, to: Int) = "${p(from)}: 跳过${p(to)}的回合"

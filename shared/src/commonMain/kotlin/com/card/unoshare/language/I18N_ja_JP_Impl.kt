@@ -16,6 +16,7 @@ class I18N_ja_JP_Impl : I18N {
     override fun act_drawCardCount(player: Int, count: Int) = "${p(player)}: 手札を $count 枚引く"
     override fun act_pass(player: Int) = "${p(player)}: パス"
     override fun act_playCard(player: Int, card: String) = "${p(player)}: $card"
+    override fun act_playCard(player: Int) = "${p(player)}"
     override fun act_playDraw2(from: Int, to: Int, count: Int) = "${p(from)}: ${p(to)}に手札を $count 枚引かせる"
     override fun act_playRev(player: Int) = "${p(player)}: 方向を変える"
     override fun act_playSkip(from: Int, to: Int) = "${p(from)}: ${p(to)}の番をスキップ"

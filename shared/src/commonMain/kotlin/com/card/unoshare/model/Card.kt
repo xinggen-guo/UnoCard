@@ -14,17 +14,11 @@ data class Card(
     var color: CardColor,
     val type: CardType,
     val number: Int? = null,
-    var frontBitmapName: String? = null,
-    var darkBitmapName: String? = null
+    var cardBitmapName: String? = null,
 ) {
 
     init {
-        frontBitmapName = "front_${getImageShortName()}"
-        if (isWild()) {
-            darkBitmapName = frontBitmapName
-        } else {
-            darkBitmapName = "dark_${getImageShortName()}"
-        }
+        cardBitmapName = "${getImageShortName()}"
     }
 
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
@@ -45,12 +39,7 @@ data class Card(
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    suspend fun getDarkImg(): ImageBitmap {
-        return Res.readBytes("files/${darkBitmapName}.png").toImageBitmap()
-    }
-
-    @OptIn(ExperimentalResourceApi::class)
-    suspend fun getFrontImg(): ImageBitmap {
-        return Res.readBytes("files/${frontBitmapName}.png").toImageBitmap()
+    suspend fun getCardImg(): ImageBitmap {
+        return Res.readBytes("files/${cardBitmapName}.png").toImageBitmap()
     }
 }

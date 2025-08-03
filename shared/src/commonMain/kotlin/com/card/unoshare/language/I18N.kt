@@ -10,6 +10,7 @@ interface I18N {
     fun act_drawCardCount(player: Int, count: Int): String
     fun act_pass(player: Int): String
     fun act_playCard(player: Int, card: String): String
+    fun act_playCard(player: Int): String
     fun act_playDraw2(from: Int, to: Int, count: Int): String
     fun act_playRev(player: Int): String
     fun act_playSkip(from: Int, to: Int): String

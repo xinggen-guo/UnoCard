@@ -5,7 +5,7 @@ package com.card.unoshare.language
  * @date 02/08/2025 11:07
  * @description
  */
-class I18N_en_US_Impl : I18N {
+class I18N_en_US_Impl : I18N { // I18N_en_US_Impl
     private val P = arrayOf("YOU", "WEST", "NORTH", "EAST")
     private val C = arrayOf("NONE", "[R]RED", "[B]BLUE", "[G]GREEN", "[Y]YELLOW")
 
@@ -17,6 +17,7 @@ class I18N_en_US_Impl : I18N {
         if (count == 1) "${p(player)}: Draw a card" else "${p(player)}: Draw $count cards"
     override fun act_pass(player: Int) = "${p(player)}: Pass"
     override fun act_playCard(player: Int, card: String) = "${p(player)}: $card"
+    override fun act_playCard(player: Int) = "${p(player)}"
     override fun act_playDraw2(from: Int, to: Int, count: Int) = "${p(from)}: Let ${p(to)} draw $count cards"
     override fun act_playRev(player: Int) = "${p(player)}: Change direction"
     override fun act_playSkip(from: Int, to: Int) =
@@ -89,4 +90,4 @@ class I18N_en_US_Impl : I18N {
     override fun label_yes() = "YES"
 
     private fun char(i: Int): Char = if (i in 0..4) "WRBGY"[i] else 'W'
-} // I18N_en_US_Impl
+}

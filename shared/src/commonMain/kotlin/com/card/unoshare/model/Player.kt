@@ -1,6 +1,7 @@
 package com.card.unoshare.model
 
 import androidx.compose.ui.Alignment
+import com.card.unoshare.engine.CardGameResource
 
 /**
  * @author xinggen.guo
@@ -17,6 +18,27 @@ data class Player(
 ) {
     fun drawCard(card: Card) {
         hand.add(card)
+    }
+
+    fun getDirectionPosition():Int{
+        val position = when (direction) {
+
+            Alignment.BottomCenter -> {
+                0
+            }
+
+            Alignment.CenterStart -> {
+                1
+            }
+
+            Alignment.CenterEnd -> {
+                3
+            }
+
+            else ->
+                0
+        }
+        return position
     }
 
 }
