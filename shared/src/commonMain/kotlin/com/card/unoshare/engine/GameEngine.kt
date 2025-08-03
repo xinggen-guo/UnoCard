@@ -1,7 +1,7 @@
 package com.card.unoshare.engine
 
-import androidx.compose.ui.Alignment
 import com.card.unoshare.model.Card
+import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.GameStatus
 import com.card.unoshare.model.Player
@@ -62,17 +62,40 @@ class GameEngine(
 
     fun playTurn(card: Card, player: Player): Boolean {
 
-        player.hand.remove(card)
-        discardPile.add(card)
-        applyCardEffect(card, gameStatus , drawPile)
+        var needDeal = applyCardEffect(card, gameStatus , drawPile)
+
+        if(!needDeal) {
+            player.hand.remove(card)
+            discardPile.add(card)
+        }
 
         if (player.hand.isEmpty()) {
             gameStatus.gameEnded = true
             gameStatus.gameStart = false
+            needDeal = false
         } else {
             gameStatus.nextPlayer()
         }
-        return true
+        return needDeal
+    }
+
+    fun playSelectColor(cardColor: CardColor, card: Card, player: Player) {
+        card.setColor(cardColor)
+        player.hand.remove(card)
+        discardPile.add(card)
+        gameStatus.nextPlayer()
+    }
+
+    fun playSelectColorAndDrawCards(cardColor: CardColor, card: Card, player: Player) {
+        card.setColor(cardColor)
+        player.hand.remove(card)
+        discardPile.add(card)
+        // Next player draws 4 and is skipped
+        val next = gameStatus.peekNextPlayer()
+        repeat(4) {
+            drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
+        }
+        gameStatus.skipNextPlayer()
     }
 
     fun drawCard(player: Player) {
@@ -142,5 +165,6 @@ class GameEngine(
     fun getPlayerPositionStr(player: Player): String {
         return CardGameResource.i18n.act_playCard(player.getDirectionPosition())
     }
+
 
 }

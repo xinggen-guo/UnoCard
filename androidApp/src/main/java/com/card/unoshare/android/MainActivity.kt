@@ -3,6 +3,7 @@ package com.card.unoshare.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.card.unoshare.ui.ColorSelectorDialogHost
 import com.card.unoshare.ui.rendCardInitPage
 
 class MainActivity : ComponentActivity() {
@@ -10,6 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             rendCardInitPage()
+            ColorSelectorDialogHost()
         }
     }
 }

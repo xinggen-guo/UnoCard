@@ -11,14 +11,24 @@ import unocard.shared.generated.resources.Res
  * @description card base information
  */
 data class Card(
-    var color: CardColor,
+    private var color: CardColor,
     val type: CardType,
     val number: Int? = null,
     var cardBitmapName: String? = null,
+    var cardHandBitmapName:String? = null
 ) {
-
     init {
-        cardBitmapName = "${getImageShortName()}"
+        cardBitmapName = getImageShortName()
+        cardHandBitmapName = getImageShortName(true)
+    }
+
+    fun setColor(color: CardColor){
+        this.color = color
+        cardBitmapName = getImageShortName()
+    }
+
+    fun getColor():CardColor{
+        return color
     }
 
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
@@ -31,15 +41,34 @@ data class Card(
     }
 
     fun randomColor() {
-        color = CardColor.entries.random()
+        setColor(CardColor.entries.random())
     }
 
-    fun getImageShortName(): String {
-        return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
+    fun getImageShortName(hand: Boolean = false): String {
+        if(!hand){
+            return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
+        }else {
+            return when (type) {
+                CardType.WILD -> {
+                    "kw"
+                }
+
+                CardType.WILD_DRAW_FOUR -> {
+                    "kw4"
+                }
+                else -> {
+                    "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    suspend fun getCardImg(): ImageBitmap {
-        return Res.readBytes("files/${cardBitmapName}.png").toImageBitmap()
+    suspend fun getCardImg(hand: Boolean): ImageBitmap {
+        if(hand){
+            return Res.readBytes("files/${cardHandBitmapName}.png").toImageBitmap()
+        }else {
+            return Res.readBytes("files/${cardBitmapName}.png").toImageBitmap()
+        }
     }
 }

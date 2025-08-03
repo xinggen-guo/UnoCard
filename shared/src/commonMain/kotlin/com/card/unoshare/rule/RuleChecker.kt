@@ -11,7 +11,7 @@ import com.card.unoshare.model.CardType
  */
 object RuleChecker {
     fun isValidMove(card: Card, topCard: Card): Boolean {
-        return card.color == topCard.color ||
+        return card.getColor() == topCard.getColor() ||
                 (card.type == CardType.NUMBER && card.number == topCard.number) ||
                 (card.type == topCard.type && card.type != CardType.NUMBER) ||
                 card.type == CardType.WILD || card.type == CardType.WILD_DRAW_FOUR

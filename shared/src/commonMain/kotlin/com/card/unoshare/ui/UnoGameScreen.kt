@@ -1,25 +1,35 @@
 package com.card.unoshare.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameEngine
 import com.card.unoshare.engine.GameInitializer
 import com.card.unoshare.model.Card
+import com.card.unoshare.model.CardColor
+import com.card.unoshare.model.CardType
 import com.card.unoshare.model.Player
 import com.card.unoshare.rule.RuleChecker
+import kotlin.math.PI
+import kotlin.math.atan2
 
 
 /**
@@ -292,7 +302,7 @@ fun renderDiscardArea(gameEngine: GameEngine) {
                     initialValue = null,
                     card.cardBitmapName
                 ) {
-                    value = card.getCardImg()
+                    value = card.getCardImg(hand = false)
                 }
                 val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
                 val totalWidth = (playCards.size - 1) * offset
@@ -322,7 +332,7 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
     ) {
         cards.forEachIndexed { index, card ->
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getCardImg()
+                value = card.getCardImg(true)
             }
 
             val canPlayCard = player == gameEngine.getCurrentPlayer()
@@ -359,7 +369,7 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
     ) {
         cards.forEachIndexed { index, card ->
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getCardImg()
+                value = card.getCardImg(true)
             }
             val canPlayCard = player == gameEngine.getCurrentPlayer()
             val colorFilter = if (!canPlayCard) ColorFilter.tint(
@@ -404,7 +414,7 @@ fun BottomHandStack(
                 GameInitializer.gameEngine.getTopCard()
             )
             val imageBitmap by produceState<ImageBitmap?>(initialValue = null, canPlayCard) {
-                value =  card.getCardImg()
+                value =  card.getCardImg(true)
             }
 
             imageBitmap?.let {
@@ -423,10 +433,79 @@ fun BottomHandStack(
                     contentScale = ContentScale.None,
                     modifier = Modifier.align(Alignment.Center).offset(x = offsetX.dp)
                         .clickable(enabled = canPlayCard, onClick = {
-                            GameInitializer.gameEngine.playTurn(card, player)
-                            playCard()
+                            when(card.type) {
+
+                                CardType.WILD -> {
+                                    ColorSelectorDialogController.show {
+                                        gameEngine.playSelectColor(it,card, player)
+                                        playCard()
+                                    }
+                                }
+
+                                CardType.WILD_DRAW_FOUR -> {
+                                    ColorSelectorDialogController.show {
+                                        gameEngine.playSelectColorAndDrawCards(it,card, player)
+                                        playCard()
+                                    }
+                                }
+
+                                else -> {
+                                    GameInitializer.gameEngine.playTurn(card, player)
+                                    playCard()
+                                }
+                            }
+
                         })
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun ColorSelectorDialogHost() {
+    if (ColorSelectorDialogController.isVisible) {
+        Dialog(onDismissRequest = {
+//            ColorSelectorDialogController.dismiss()
+        }) {
+            Box(
+                modifier = Modifier
+                    .size(260.dp)
+                    .background(Color.Transparent),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(
+                    modifier = Modifier
+                        .size(220.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures { offset ->
+                                val sizePx = this.size
+                                val center = Offset(sizePx.width / 2f, sizePx.height / 2f)
+                                val dx = offset.x - center.x
+                                val dy = offset.y - center.y
+                                val angle = atan2(-dy, dx) * 180f / PI
+                                val degree = if (angle < 0) angle + 360 else angle
+                                val selectedQuadrant = when {
+                                    degree in 0.0..90.0 -> 3  // YELLOW
+                                    degree in 90.0..180.0 -> 2 // BLUE
+                                    degree in 180.0..270.0 -> 1 // GREEN
+                                    degree in 270.0..360.0 -> 0  //red
+                                    else -> 0 // red
+                                }
+                                ColorSelectorDialogController.handleSelection(CardColor.entries.getOrNull(selectedQuadrant) ?:CardColor.BLUE)
+                            }
+                        }
+                ) {
+                    val colors = CardColor.colorList
+                    for (i in 0 until 4) {
+                        drawArc(
+                            color = colors[i],
+                            startAngle = i * 90f,
+                            sweepAngle = 90f,
+                            useCenter = true
+                        )
+                    }
+                }
             }
         }
     }

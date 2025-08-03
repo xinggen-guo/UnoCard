@@ -27,7 +27,8 @@ object EffectApplier {
     /**
      * Apply special effects based on the card type
      */
-    fun applyCardEffect(card: Card, gameStatus: GameStatus, drawPile: MutableList<Card>) {
+    fun applyCardEffect(card: Card, gameStatus: GameStatus, drawPile: MutableList<Card>): Boolean {
+        var needDeal = false
         when (card.type) {
             CardType.REVERSE -> {
                 // Reverse the turn order
@@ -48,22 +49,19 @@ object EffectApplier {
                 gameStatus.skipNextPlayer()
             }
 
-            CardType.WILD, CardType.WILD_DRAW_FOUR -> {
-                // Choose a random color
-                card.randomColor()
-                if (card.type == CardType.WILD_DRAW_FOUR) {
-                    // Next player draws 4 and is skipped
-                    val next = gameStatus.peekNextPlayer()
-                    repeat(4) {
-                        drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
-                    }
-                    gameStatus.skipNextPlayer()
-                }
+            CardType.WILD -> {
+                needDeal = true
+            }
+
+            CardType.WILD_DRAW_FOUR -> {
+                needDeal = true
             }
 
             else -> {
                 // Normal number card, do nothing
             }
         }
+
+        return needDeal
     }
 }
