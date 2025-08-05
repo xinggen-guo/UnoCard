@@ -45,17 +45,22 @@ class GameEngine(
     fun isStartGame() = gameStatus.gameStart
 
     // 执行一次轮询模拟所有玩家出一张牌
-    fun playRoundByAi() {
+    fun playRoundByAi(playCard: (card: Card) -> Boolean, drawCard: (player: Player, card: Card) -> Boolean) {
         val player = getCurrentPlayer()
         val top = getTopCard()
-        // 根据 shiawasenahikari 仓库 AI 简单逻辑：出首张合法牌，否则抽一张
+        // AI 简单逻辑：出首张合法牌，否则抽一张
         val playable = player.hand.firstOrNull { RuleChecker.isValidMove(it, top!!) }
         if (playable != null) {
-            player.hand.remove(playable)
-            discardPile.add(playable)
-            applyCardEffect(playable, gameStatus, drawPile)
+            if(playCard(playable)){
+                player.hand.remove(playable)
+                discardPile.add(playable)
+                applyCardEffect(playable, gameStatus, drawPile)
+            }
         } else {
-            player.drawCard(drawPile.removeAt(0))
+            val card = drawPile.removeAt(0)
+            if(drawCard(player,card)){
+                player.drawCard(card)
+            }
         }
         gameStatus.nextPlayer()
     }
@@ -98,9 +103,11 @@ class GameEngine(
         gameStatus.skipNextPlayer()
     }
 
-    fun drawCard(player: Player) {
+    fun drawCard(player: Player): Card {
         if (drawPile.isEmpty()) reshuffleDiscardIntoDrawPile()
-        player.drawCard(drawPile.removeFirst())
+        val card = drawPile.removeFirst()
+        player.drawCard(card = card)
+        return card
     }
 
     fun getTopCard(): Card = discardPile.last()

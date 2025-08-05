@@ -1,5 +1,6 @@
 package com.card.unoshare.model
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import com.card.unoshare.util.toImageBitmap
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -14,6 +15,7 @@ data class Card(
     private var color: CardColor,
     val type: CardType,
     val number: Int? = null,
+    var cardLocation:Offset? = null,
     var cardBitmapName: String? = null,
     var cardHandBitmapName:String? = null
 ) {

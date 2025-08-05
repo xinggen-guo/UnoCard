@@ -1,6 +1,7 @@
 package com.card.unoshare.model
 
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import com.card.unoshare.engine.CardGameResource
 
 /**
@@ -14,7 +15,8 @@ data class Player(
     val hand: MutableList<Card> = mutableListOf(),
     var isAI: Boolean = false,
     // Alignment.CenterStart,Alignment.BottomCenter,Alignment.CenterEnd
-    val direction: Alignment
+    val direction: Alignment,
+    var drawCardOffset: Offset? = null
 ) {
     fun drawCard(card: Card) {
         hand.add(card)
