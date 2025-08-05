@@ -33,12 +33,29 @@ class GameEngine(
         discardPile.clear()
         drawPile.addAll(CardGameResource.cards)
         players.forEach { it.hand.clear() }
-        repeat(7) { players.forEach { p -> p.drawCard(drawPile.removeAt(0)) } }
+        repeat(7) {
+            players.forEach { p ->
+//                if(!p.isAI){
+//                    p.drawCard(drawCardByCardType(CardType.WILD_DRAW_FOUR))
+//                }else {
+                    p.drawCard(drawPile.removeAt(0))
+//                }
+            }
+        }
         // 发牌后，从 drawPile 中放一个符合规则的牌进入 discardPile
         val first = drawPile.firstOrNull { it.type == CardType.NUMBER }
         first?.let {
             drawPile.remove(it)
             discardPile.add(it)
+        }
+    }
+
+    fun drawCardByCardType(cardType: CardType?): Card {
+        if (cardType == null)
+            return drawPile.removeAt(0)
+        else {
+            val card = drawPile.firstOrNull { it.type == CardType.WILD_DRAW_FOUR }
+            return card ?: drawPile.get(0)
         }
     }
 
@@ -48,30 +65,35 @@ class GameEngine(
     fun playRoundByAi(playCard: (card: Card) -> Boolean, drawCard: (player: Player, card: Card) -> Boolean) {
         val player = getCurrentPlayer()
         val top = getTopCard()
-        // AI 简单逻辑：出首张合法牌，否则抽一张
+            // AI 简单逻辑：出首张合法牌，否则抽一张
         val playable = player.hand.firstOrNull { RuleChecker.isValidMove(it, top!!) }
         if (playable != null) {
-            if(playCard(playable)){
+            if (playCard(playable)) {
                 player.hand.remove(playable)
                 discardPile.add(playable)
                 applyCardEffect(playable, gameStatus, drawPile)
             }
         } else {
             val card = drawPile.removeAt(0)
-            if(drawCard(player,card)){
+            if (drawCard(player, card)) {
                 player.drawCard(card)
             }
         }
+
         gameStatus.nextPlayer()
     }
 
     fun playTurn(card: Card, player: Player): Boolean {
 
-        var needDeal = applyCardEffect(card, gameStatus , drawPile)
-
-        if(!needDeal) {
-            player.hand.remove(card)
-            discardPile.add(card)
+        var needDeal: Boolean
+        if (player.dealDrawCard) {
+            needDeal = true
+        } else {
+            needDeal = applyCardEffect(card, gameStatus, drawPile)
+            if (!needDeal) {
+                player.hand.remove(card)
+                discardPile.add(card)
+            }
         }
 
         if (player.hand.isEmpty()) {
@@ -79,7 +101,9 @@ class GameEngine(
             gameStatus.gameStart = false
             needDeal = false
         } else {
-            gameStatus.nextPlayer()
+            if(!needDeal) {
+                gameStatus.nextPlayer()
+            }
         }
         return needDeal
     }
@@ -88,26 +112,24 @@ class GameEngine(
         card.setColor(cardColor)
         player.hand.remove(card)
         discardPile.add(card)
+        if(card.isDrawCard()){
+            gameStatus.peekNextPlayer().dealDrawCard = true
+        }
         gameStatus.nextPlayer()
     }
 
-    fun playSelectColorAndDrawCards(cardColor: CardColor, card: Card, player: Player) {
-        card.setColor(cardColor)
-        player.hand.remove(card)
-        discardPile.add(card)
-        // Next player draws 4 and is skipped
-        val next = gameStatus.peekNextPlayer()
-        repeat(4) {
-            drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
+    fun drawCardFromPile(cardNumber: Int = 0): List<Card>{
+        if (drawPile.isEmpty()) reshuffleDiscardIntoDrawPile()
+        val cards = mutableListOf<Card>()
+        for (i in 0..<cardNumber) {
+            cards.add(drawPile.removeFirst())
         }
-        gameStatus.skipNextPlayer()
+        return cards
     }
 
-    fun drawCard(player: Player): Card {
-        if (drawPile.isEmpty()) reshuffleDiscardIntoDrawPile()
-        val card = drawPile.removeFirst()
-        player.drawCard(card = card)
-        return card
+    fun drawCardComplete(cards: List<Card>) {
+        getCurrentPlayer().drawCards(cards)
+        gameStatus.nextPlayer()
     }
 
     fun getTopCard(): Card = discardPile.last()

@@ -8,7 +8,7 @@ import androidx.compose.ui.geometry.Offset
  * @description
  */
 data class MovingCardState(
-    val card: Card,
+    val cards: List<Card>,
     val from: Offset,
     val to: Offset,
     val onArrive: () -> Unit = {}

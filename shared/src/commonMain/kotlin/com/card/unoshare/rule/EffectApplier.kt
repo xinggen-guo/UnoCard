@@ -37,16 +37,17 @@ object EffectApplier {
 
             CardType.SKIP -> {
                 // Skip the next player
-                gameStatus.skipNextPlayer()
+                gameStatus.nextPlayer()
             }
 
             CardType.DRAW_TWO -> {
                 // Next player draws 2 cards and is skipped
                 val next = gameStatus.peekNextPlayer()
-                repeat(2) {
-                    drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
-                }
-                gameStatus.skipNextPlayer()
+                next.dealDrawCard = true
+//                repeat(2) {
+//                    drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
+//                }
+//                gameStatus.skipNextPlayer()
             }
 
             CardType.WILD -> {
@@ -54,6 +55,8 @@ object EffectApplier {
             }
 
             CardType.WILD_DRAW_FOUR -> {
+                val next = gameStatus.peekNextPlayer()
+                next.dealDrawCard = true
                 needDeal = true
             }
 

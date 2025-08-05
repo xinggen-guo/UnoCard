@@ -35,6 +35,8 @@ data class Card(
 
     fun isWild(): Boolean = type == CardType.WILD || type == CardType.WILD_DRAW_FOUR
 
+    fun isDrawCard(): Boolean = type == CardType.DRAW_TWO || type == CardType.WILD_DRAW_FOUR
+
     fun displayText(): String {
         return if (type == CardType.NUMBER)
             "${color.name}:${number}"
@@ -71,6 +73,14 @@ data class Card(
             return Res.readBytes("files/${cardHandBitmapName}.png").toImageBitmap()
         }else {
             return Res.readBytes("files/${cardBitmapName}.png").toImageBitmap()
+        }
+    }
+
+    fun getDrawNumber(): Int {
+        return when (type) {
+            CardType.WILD_DRAW_FOUR -> 4
+            CardType.DRAW_TWO -> 2
+            else -> 0
         }
     }
 }

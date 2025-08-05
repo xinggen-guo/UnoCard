@@ -120,19 +120,39 @@ fun StartCardGameScreen() {
     var gameClockWise by remember { mutableStateOf(gameEngine.gameClockwise()) }
     var lastPlayerPlayCard by remember { mutableStateOf("") }
 
-    fun refreshGameState() {
+    fun checkNextPlayerDealEffect(gameEngine: GameEngine,checkPlayerDealEffect:(cards : List<Card>,player:Player) -> Unit) {
+        val player = gameEngine.getCurrentPlayer()
+        if(!player.dealDrawCard) return
+        val cardNumber = gameEngine.getTopCard().getDrawNumber()
+        val cards = gameEngine.drawCardFromPile(cardNumber)
+        if(player.drawCardOffset != null && drawCardOffset != null){
+            player.dealDrawCard = false
+            checkPlayerDealEffect(cards, player)
+        }
+    }
+
+    fun refreshGameState(checkPlayerDealEffect: ((cards: List<Card>, player: Player) -> Unit)?) {
         currentPlayerName = gameEngine.getCurrentPlayerName()
         topCard = gameEngine.getTopCard().displayText()
         allHands = gameEngine.getAllPlayerHands()
         winner = gameEngine.getWinnerName()
         gameClockWise = gameEngine.gameClockwise()
         lastPlayerPlayCard = gameEngine.getLastDirectionAndCardInfo()
+        checkPlayerDealEffect?.let {
+            checkNextPlayerDealEffect(gameEngine,it)
+        }
     }
+
 
     // 🟡 Initialize the game once
     LaunchedEffect(Unit) {
         gameEngine.startGame()
-        refreshGameState()
+        refreshGameState { cards, player ->
+            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                gameEngine.drawCardComplete(cards)
+                refreshGameState(null)
+            }
+        }
     }
     Box(modifier = Modifier.fillMaxSize()) {
         renderDiscardArea(gameEngine)
@@ -145,6 +165,7 @@ fun StartCardGameScreen() {
             renderDrawArea(gameEngine, maxWidth) { card, player ->
                 CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
                     renderRefreshCards = !renderRefreshCards
+                    player.drawCard(card)
                     card.cardLocation = null
                 }
             }
@@ -174,7 +195,9 @@ fun StartCardGameScreen() {
             }
         }
 
+        var clockHeight = 0
         imageClockBitmap?.let {
+            clockHeight = it.height
             Image(
                 bitmap = it,
                 contentDescription = null,
@@ -188,24 +211,29 @@ fun StartCardGameScreen() {
             val textColor = if (canPlay) textPlayColor else textShowColor
             when (it.direction) {
                 Alignment.BottomCenter -> {
+                    val tipText = if (canPlay) gameEngine.getTipInfoYouPlayer() else gameEngine.getPlayerPositionStr(it)
+                    key(currentPlayerName) {
+                        Text(
+                            tipText,
+                            color = textColor,
+                            modifier = Modifier.align(Alignment.Center)
+                                .padding(top = clockHeight.dp + 10.dp)
+                        )
+                    }
+
                     key(renderRefreshCards) {
                         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
-                            val tipText = if (canPlay) gameEngine.getTipInfoYouPlayer() else gameEngine.getPlayerPositionStr(it)
-                            key(currentPlayerName) {
-                                Text(
-                                    tipText,
-                                    color = textColor,
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                                        .padding(bottom = 3.dp)
-                                )
-                            }
-
                             key(it.hand.size) {
                                 BottomHandStack(it.hand, it, gameEngine, playCard = { card ->
                                     if (disCardOffset != null && card.cardLocation != null) {
                                         CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
-                                            refreshGameState()
                                             card.cardLocation = null
+                                            refreshGameState { cards, player ->
+                                                CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                                                    gameEngine.drawCardComplete(cards)
+                                                    refreshGameState(null)
+                                                }
+                                            }
                                         }
                                     }
                                 })
@@ -275,15 +303,25 @@ fun StartCardGameScreen() {
                     gameEngine.playRoundByAi(playCard = {card ->
                         if(card.cardLocation != null && disCardOffset!= null){
                             CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
-                                refreshGameState()
                                 card.cardLocation = null
+                                refreshGameState { cards, player ->
+                                    CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                                        gameEngine.drawCardComplete(cards)
+                                        refreshGameState(null)
+                                    }
+                                }
                             }
                         }
                         return@playRoundByAi true
                     }, drawCard = { player, card ->
                         if(player.drawCardOffset != null && drawCardOffset != null){
                             CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
-                                refreshGameState()
+                                refreshGameState { cards, player ->
+                                    CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                                        gameEngine.drawCardComplete(cards)
+                                        refreshGameState(null)
+                                    }
+                                }
                             }
                         }
                         return@playRoundByAi true
@@ -316,8 +354,8 @@ fun renderDrawArea(gameEngine: GameEngine, maxWidth: Dp, renderCard: (card: Card
                 drawCardOffset = it.localToWindow(Offset.Zero)
             }.clickable(enabled = !gameEngine.getCurrentPlayer().isAI, onClick = {
                 val player = gameEngine.getCurrentPlayer()
-                val card = gameEngine.drawCard(player)
-                renderCard(card, player)
+                val card = gameEngine.drawCardFromPile()
+                renderCard(card.get(0), player)
             })
         )
     }
@@ -496,17 +534,9 @@ fun BottomHandStack(
                         }
                         .clickable(enabled = canPlayCard, onClick = {
                             when (card.type) {
-
-                                CardType.WILD -> {
+                                CardType.WILD,CardType.WILD_DRAW_FOUR -> {
                                     ColorSelectorDialogController.show {
                                         gameEngine.playSelectColor(it, card, player)
-                                        playCard(card)
-                                    }
-                                }
-
-                                CardType.WILD_DRAW_FOUR -> {
-                                    ColorSelectorDialogController.show {
-                                        gameEngine.playSelectColorAndDrawCards(it, card, player)
                                         playCard(card)
                                     }
                                 }

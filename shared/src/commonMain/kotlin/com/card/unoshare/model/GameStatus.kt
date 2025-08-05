@@ -29,10 +29,6 @@ class GameStatus(
         isCounterWise = !isCounterWise
     }
 
-    fun skipNextPlayer() {
-        nextPlayer()
-    }
-
     fun peekNextPlayer(): Player {
         val nexPlayerIndex = if (isCounterWise)
             (currentPlayerIndex - 1 + players.size) % players.size

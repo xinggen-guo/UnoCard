@@ -16,8 +16,13 @@ data class Player(
     var isAI: Boolean = false,
     // Alignment.CenterStart,Alignment.BottomCenter,Alignment.CenterEnd
     val direction: Alignment,
-    var drawCardOffset: Offset? = null
+    var drawCardOffset: Offset? = null,
+    var dealDrawCard :Boolean = false
 ) {
+    fun drawCards(cards: List<Card>) {
+        hand.addAll(cards)
+    }
+
     fun drawCard(card: Card) {
         hand.add(card)
     }

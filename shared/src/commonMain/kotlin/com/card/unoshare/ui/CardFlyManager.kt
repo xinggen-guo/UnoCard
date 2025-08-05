@@ -14,7 +14,12 @@ object CardFlyManager {
     var movingCardState = mutableStateOf<MovingCardState?>(null)
 
     fun start(card: Card, from: Offset, to: Offset, onArrive: () -> Unit = {}) {
-        movingCardState.value = MovingCardState(card, from, to, onArrive)
+        val cards = mutableListOf(card)
+        start(cards, from, to, onArrive)
+    }
+
+    fun start(cards: List<Card>, from: Offset, to: Offset, onArrive: () -> Unit = {}) {
+        movingCardState.value = MovingCardState(cards, from, to, onArrive)
     }
 
     fun clear() {
