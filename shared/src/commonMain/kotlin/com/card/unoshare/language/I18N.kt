@@ -36,7 +36,7 @@ interface I18N {
     fun info_challengeSuccess(player: Int): String
     fun info_clickAgainToPlay(card: String): String
     fun info_dirChanged(): String
-    fun info_gameOver(score: Int, delta: Int): String
+    fun info_gameOver(): String
     fun info_ready(): String
     fun info_ruleSettings(): String
     fun info_save(filename: String?): String

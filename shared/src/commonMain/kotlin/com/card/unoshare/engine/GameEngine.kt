@@ -29,9 +29,11 @@ class GameEngine(
 
     fun startGame(initialHandSize: Int = 7) {
         gameStatus.gameStart = true
+        gameStatus.gameEnded = false
         drawPile.clear()
         discardPile.clear()
         drawPile.addAll(CardGameResource.cards)
+        drawPile.shuffle()
         players.forEach { it.hand.clear() }
         repeat(7) {
             players.forEach { p ->
@@ -48,6 +50,7 @@ class GameEngine(
             drawPile.remove(it)
             discardPile.add(it)
         }
+        gameStatus.randomWhoFirst()
     }
 
     fun drawCardByCardType(cardType: CardType?): Card {
@@ -59,7 +62,7 @@ class GameEngine(
         }
     }
 
-    fun isStartGame() = gameStatus.gameStart
+    fun needRestartGame() = (gameStatus.gameStart && gameStatus.gameEnded)
 
     // 执行一次轮询模拟所有玩家出一张牌
     fun playRoundByAi(playCard: (card: Card) -> Boolean, drawCard: (player: Player, card: Card) -> Boolean) {
@@ -98,7 +101,6 @@ class GameEngine(
 
         if (player.hand.isEmpty()) {
             gameStatus.gameEnded = true
-            gameStatus.gameStart = false
             needDeal = false
         } else {
             if(!needDeal) {
@@ -118,7 +120,7 @@ class GameEngine(
         gameStatus.nextPlayer()
     }
 
-    fun drawCardFromPile(cardNumber: Int = 0): List<Card>{
+    fun drawCardFromPile(cardNumber: Int = 1): List<Card>{
         if (drawPile.isEmpty()) reshuffleDiscardIntoDrawPile()
         val cards = mutableListOf<Card>()
         for (i in 0..<cardNumber) {
@@ -167,7 +169,9 @@ class GameEngine(
         gameStatus.nextPlayer()
     }
     fun getWinnerName(): String? {
-        return players.firstOrNull { it.hand.isEmpty() }?.name
+        val name = players.firstOrNull { it.hand.isEmpty() }?.name
+        if (name.isNullOrEmpty()) gameStatus.gameEnded = true
+        return name
     }
 
     fun getAllPlayers(): List<Player> {
@@ -193,6 +197,14 @@ class GameEngine(
 
     fun getPlayerPositionStr(player: Player): String {
         return CardGameResource.i18n.act_playCard(player.getDirectionPosition())
+    }
+
+    fun countSore(): Int {
+        var score = 0
+        getAllPlayers().first { !it.isAI }.hand.forEach {
+            score += it.getCardScore()
+        }
+        return score
     }
 
 

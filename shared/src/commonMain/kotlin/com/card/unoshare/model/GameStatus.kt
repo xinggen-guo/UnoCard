@@ -1,5 +1,7 @@
 package com.card.unoshare.model
 
+import kotlin.random.Random
+
 /**
  * @author xinggen.guo
  * @date 31/07/2025 13:53
@@ -27,6 +29,11 @@ class GameStatus(
 
     fun reverseOrder() {
         isCounterWise = !isCounterWise
+    }
+
+    fun randomWhoFirst(){
+        currentPlayerIndex = Random.nextInt(0, players.size)
+        isCounterWise = Random.nextBoolean()
     }
 
     fun peekNextPlayer(): Player {

@@ -50,9 +50,8 @@ class I18N_en_US_Impl : I18N { // I18N_en_US_Impl
         if (player == 0) "Challenge success, you draw 4 cards" else "Challenge success, ${p(player)} draws 4 cards"
     override fun info_clickAgainToPlay(card: String) = "Click again to play $card"
     override fun info_dirChanged() = "Direction changed"
-    override fun info_gameOver(score: Int, delta: Int): String {
-        val s = if (delta < 0) "[R]($delta)[W]" else "[G](+$delta)[W]"
-        return "Score: $score$s. Click UNO to restart"
+    override fun info_gameOver(): String {
+        return "Click to restart"
     }
     override fun info_ready() = "GET READY"
     override fun info_ruleSettings() = "RULE SETTINGS"

@@ -42,9 +42,8 @@ class I18N_ja_JP_Impl : I18N {
     override fun info_challengeSuccess(player: Int) = "チャレンジ成功、${p(player)}は手札を 4 枚引く"
     override fun info_clickAgainToPlay(card: String) = "もう一度クリックして $card[W] を出す"
     override fun info_dirChanged() = "方向が変わりました"
-    override fun info_gameOver(score: Int, delta: Int): String {
-        val s = if (delta < 0) "[R]($delta)[W]" else "[G](+$delta)[W]"
-        return "スコア: $score$s. UNO をクリックして再開"
+    override fun info_gameOver(): String {
+        return "をクリックして再開"
     }
     override fun info_ready() = "準備完了"
     override fun info_ruleSettings() = "ルール設定"

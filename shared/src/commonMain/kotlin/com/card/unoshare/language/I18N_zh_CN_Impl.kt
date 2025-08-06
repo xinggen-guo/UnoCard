@@ -42,10 +42,10 @@ class I18N_zh_CN_Impl : I18N {
     override fun info_challengeSuccess(player: Int) = "挑战成功, ${p(player)}摸 4 张牌"
     override fun info_clickAgainToPlay(card: String) = "再次点击以打出 $card"
     override fun info_dirChanged() = "方向已改变"
-    override fun info_gameOver(score: Int, delta: Int): String {
-        val s = if (delta < 0) "[G]($delta)[W]" else "[R](+$delta)[W]"
-        return "你的分数为 $score$s, 点击 UNO 重新开始游戏"
+    override fun info_gameOver(): String {
+        return "点击重新开始游戏"
     }
+
     override fun info_ready() = "准备"
     override fun info_ruleSettings() = "规则设置"
     override fun info_save(filename: String?) =

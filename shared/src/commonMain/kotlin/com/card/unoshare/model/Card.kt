@@ -17,7 +17,8 @@ data class Card(
     val number: Int? = null,
     var cardLocation:Offset? = null,
     var cardBitmapName: String? = null,
-    var cardHandBitmapName:String? = null
+    var cardHandBitmapName:String? = null,
+    var cardPlaying: Boolean = false
 ) {
     init {
         cardBitmapName = getImageShortName()
@@ -82,5 +83,14 @@ data class Card(
             CardType.DRAW_TWO -> 2
             else -> 0
         }
+    }
+
+    fun getCardScore():Int{
+        return when (type) {
+            CardType.WILD_DRAW_FOUR,CardType.WILD -> 50
+            CardType.DRAW_TWO,CardType.REVERSE,CardType.SKIP -> 20
+            else -> number ?: 0
+        }
+
     }
 }
