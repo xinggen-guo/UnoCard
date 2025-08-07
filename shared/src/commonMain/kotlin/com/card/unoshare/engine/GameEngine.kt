@@ -129,6 +129,10 @@ class GameEngine(
         return cards
     }
 
+    fun drawCard(card: Card) {
+        getCurrentPlayer().drawCard(card)
+    }
+
     fun drawCardComplete(cards: List<Card>) {
         getCurrentPlayer().drawCards(cards)
         gameStatus.nextPlayer()
@@ -207,5 +211,13 @@ class GameEngine(
         return score
     }
 
+    fun checkDrawCard(card: Card, player: Player): Boolean {
+        player.drawCard(card)
+        if(!RuleChecker.isPlayable(card,getTopCard())){
+            gameStatus.nextPlayer()
+            return false
+        }
+        return true
+    }
 
 }

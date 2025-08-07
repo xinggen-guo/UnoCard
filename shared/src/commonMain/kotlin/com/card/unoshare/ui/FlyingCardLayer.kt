@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun FlyingCardLayer(
     movingCardState: State<MovingCardState?> = CardFlyManager.movingCardState,
-    onAnimationEnd: (List<Card>) -> Unit = {}
+    onAnimationEnd: (List<Card>) -> Unit = {},
 ) {
     val state = movingCardState.value ?: return
     val cards = state.cards
@@ -54,14 +54,36 @@ fun FlyingCardLayer(
         val duration = 400
         val animSpec = tween<Float>(durationMillis = duration)
 
-        launch { animX.animateTo(state.to.x, animSpec) }
+        //todo Multiple locations to be processed
         launch {
-            animY.animateTo(state.to.y, animSpec)
+            val x = if(state.isVertical !=null){
+                if (state.isVertical) {
+                    state.to.x + currentIndex * (offsetCardPadding)
+                } else {
+                    state.to.x
+                }
+            } else {
+                state.to.x
+            }
+            animX.animateTo(x, animSpec)
+        }
+        launch {
+            val y = if(state.isVertical !=null){
+                if (!state.isVertical) {
+                    state.to.y + currentIndex * (offsetCardPadding)
+                } else {
+                    state.to.y
+                }
+            }else{
+                state.to.y
+            }
+            animY.animateTo(y, animSpec)
         }.invokeOnCompletion {
+            state.onEachCardArrive(card)
             if (currentIndex == cards.lastIndex) {
                 onAnimationEnd(cards)
                 CardFlyManager.clear()
-                state.onArrive()
+                state.onComplete()
             } else {
                 currentIndex++
             }
@@ -86,7 +108,6 @@ fun FlyingCardLayer(
                                 animY.value.toInt()
                             )
                         }
-                        .size(60.dp, 90.dp)
                 )
             }
         }

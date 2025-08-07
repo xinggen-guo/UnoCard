@@ -15,11 +15,13 @@ object CardFlyManager {
 
     fun start(card: Card, from: Offset, to: Offset, onArrive: () -> Unit = {}) {
         val cards = mutableListOf(card)
-        start(cards, from, to, onArrive)
+        start(cards, from, to, isVertical = null,onEachCardArrive = {
+
+        }, onArrive)
     }
 
-    fun start(cards: List<Card>, from: Offset, to: Offset, onArrive: () -> Unit = {}) {
-        movingCardState.value = MovingCardState(cards, from, to, onArrive)
+    fun start(cards: List<Card>, from: Offset, to: Offset, isVertical: Boolean?, onEachCardArrive:(Card) -> Unit, onArrive: () -> Unit) {
+        movingCardState.value = MovingCardState(cards, from, to, isVertical = isVertical,onEachCardArrive = onEachCardArrive ,onArrive)
     }
 
     fun clear() {

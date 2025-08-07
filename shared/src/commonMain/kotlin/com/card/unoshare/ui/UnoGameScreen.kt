@@ -42,7 +42,7 @@ import kotlin.math.atan2
  * @description
  */
 
-const val offset = 15
+const val offsetCardPadding = 15
 val textShowColor = Color.Gray
 val textPlayColor = Color.White
 
@@ -161,12 +161,14 @@ fun StartCardGameScreen() {
                     CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                         card.cardLocation = null
                         refreshGameState { cards, player ->
-                            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI, onEachCardArrive = {
+
+                            }, onArrive = {
                                 gameEngine.drawCardComplete(cards)
                                 refreshGameState(null)
                                 renderLeftRefreshCards = !renderLeftRefreshCards
                                 renderRightRefreshCards = !renderRightRefreshCards
-                            }
+                            })
                         }
                     }
                 }
@@ -175,12 +177,13 @@ fun StartCardGameScreen() {
                 if (player.drawCardOffset != null && drawCardOffset != null) {
                     CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
                         refreshGameState { cards, player ->
-                            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                            CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
                                 gameEngine.drawCardComplete(cards)
                                 refreshGameState(null)
                                 renderLeftRefreshCards = !renderLeftRefreshCards
                                 renderRightRefreshCards = !renderRightRefreshCards
                             }
+
                         }
                     }
                 }
@@ -192,11 +195,7 @@ fun StartCardGameScreen() {
 
     // 🟡 Initialize the game once
     LaunchedEffect(Unit) {
-        refreshGameState { cards, player ->
-            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
-                gameEngine.drawCardComplete(cards)
-                refreshGameState(null)
-            }
+        refreshGameState { _, _ ->
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -210,9 +209,11 @@ fun StartCardGameScreen() {
         ) {
             renderDrawArea(gameEngine, maxWidth) { card, player ->
                 CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
-                    renderBottomRefreshCards = !renderBottomRefreshCards
-                    player.drawCard(card)
                     card.cardLocation = null
+                    if(!gameEngine.checkDrawCard(card,player)){
+                        needCycleHandCard += 1
+                    }
+                    renderBottomRefreshCards = !renderBottomRefreshCards
                 }
             }
         }
@@ -234,7 +235,7 @@ fun StartCardGameScreen() {
                 )
 
                 Text(
-                    text = "${CardGameResource.i18n.info_gameOver()}",
+                    text = CardGameResource.i18n.info_gameOver(),
                     fontSize = 20.sp,
                     color = Color.Red,
                     modifier = Modifier.padding(top = 5.dp).clickable {
@@ -292,10 +293,13 @@ fun StartCardGameScreen() {
                                         CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                                             card.cardLocation = null
                                             refreshGameState { cards, player ->
-                                                CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!) {
+                                                CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI,
+                                                    onEachCardArrive = {card: Card ->
+//                                                     gameEngine.drawCard(card)
+                                                }, onArrive = {
                                                     gameEngine.drawCardComplete(cards)
                                                     refreshGameState(null)
-                                                }
+                                                })
                                             }
                                         }
                                     }
@@ -327,7 +331,6 @@ fun StartCardGameScreen() {
                         )
                         RightHandStack(it.hand, it, gameEngine)
                     }
-
                 }
             }
         }
@@ -391,9 +394,9 @@ fun renderDiscardArea(gameEngine: GameEngine) {
                     value = card.getCardImg(hand = false)
                 }
                 val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
-                val totalWidth = (playCards.size - 1) * offset
+                val totalWidth = (playCards.size - 1) * offsetCardPadding
                 val startX = (area - totalWidth.dp) / 2  // 起始点偏移到 area 中心
-                val offsetX = startX + (index * offset).dp
+                val offsetX = startX + (index * offsetCardPadding).dp
                 imageBitmap?.let { img ->
                     Image(
                         bitmap = img,
@@ -432,9 +435,9 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
             )
             else null
 
-            val totalHeight = (cards.size - 1) * offset
+            val totalHeight = (cards.size - 1) * offsetCardPadding
             val startY = -totalHeight / 2  // 第0张卡的offset起点
-            val offsetY = startY + index * offset
+            val offsetY = startY + index * offsetCardPadding
 
             imageBitmap?.let {
                 Image(
@@ -473,9 +476,9 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
             )
             else null
 
-            val totalHeight = (cards.size - 1) * offset
+            val totalHeight = (cards.size - 1) * offsetCardPadding
             val startY = -totalHeight / 2  // 第0张卡的offset起点
-            val offsetY = startY + index * offset
+            val offsetY = startY + index * offsetCardPadding
 
             imageBitmap?.let {
                 Image(
@@ -518,9 +521,9 @@ fun BottomHandStack(
             }
 
             imageBitmap?.let {
-                val totalWidth = (cards.size - 1) * offset
+                val totalWidth = (cards.size - 1) * offsetCardPadding
                 val startX = -totalWidth / 2  // 第0张卡的offset起点
-                val offsetX = startX + index * offset
+                val offsetX = startX + index * offsetCardPadding
                 val colorFilter = if (!canPlayCard) ColorFilter.tint(
                     color = Color(0xFF555555),
                     blendMode = BlendMode.Modulate
