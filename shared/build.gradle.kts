@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("org.jetbrains.compose") version "1.6.10"
+    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 kotlin {
@@ -25,6 +26,7 @@ kotlin {
     }
 
     sourceSets {
+
         commonMain{
             resources.srcDir("src/commonMain/resources")
             dependencies {
@@ -39,8 +41,25 @@ kotlin {
             }
         }
 
+        val iosMain = create("iosMain") {
+            dependsOn(getByName("commonMain"))
+        }
+        getByName("iosX64Main").dependsOn(iosMain)
+        getByName("iosArm64Main").dependsOn(iosMain)
+        getByName("iosSimulatorArm64Main").dependsOn(iosMain)
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+
+    cocoapods {
+        summary = "Shared code for UnoCard"
+        homepage = "https://github.com/xinggen-guo/UnoCard"
+        version = "1.16.2"
+        ios.deploymentTarget = "16.0"
+        framework {
+            baseName = "shared"
         }
     }
 }
