@@ -6,21 +6,22 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.MovingCardState
 import com.card.unoshare.render.CardBitmapManager
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * @author xinggen.guo
@@ -38,62 +39,61 @@ fun FlyingCardLayer(
     val scope = rememberCoroutineScope()
 
     // 当前动画中的卡牌 index
-    var currentIndex by remember(state) { mutableStateOf(0) }
+    var currentIndex by remember(state) { mutableStateOf(-1) }
 
-    val animX = remember { Animatable(state.from.x) }
-    val animY = remember { Animatable(state.from.y) }
+    val animX = remember(state.cards.size) { List(cards.size) { Animatable(state.from.x) } }
+    val animY = remember(state.cards.size) { List(cards.size) { Animatable(state.from.y) } }
 
-    // 当前卡牌动画
-    LaunchedEffect(currentIndex, state) {
-        if (currentIndex >= cards.size) return@LaunchedEffect
+    val density = LocalDensity.current
+    val spacingPx = with(density) { offsetCardPadding.dp.toPx() }
 
-        val card = cards[currentIndex]
-
-        animX.snapTo(state.from.x)
-        animY.snapTo(state.from.y)
-
+    LaunchedEffect(state){
         val duration = 400
-        val animSpec = tween<Float>(durationMillis = duration)
+        val spec = tween<Float>(durationMillis = duration)
 
-        //todo Multiple locations to be processed
-        launch {
+        for (i in cards.indices) {
+            currentIndex = i
+
+            animX[i].snapTo(state.from.x)
+            animY[i].snapTo(state.from.y)
+
             val x = if(state.isVertical !=null){
-                if (state.isVertical) {
-                    state.to.x + currentIndex * (offsetCardPadding)
+                if (!state.isVertical) {
+                    state.to.x + (currentIndex * spacingPx)
                 } else {
                     state.to.x
                 }
             } else {
                 state.to.x
             }
-            animX.animateTo(x, animSpec)
-        }
-        launch {
-            val y = if(state.isVertical !=null){
-                if (!state.isVertical) {
-                    state.to.y + currentIndex * (offsetCardPadding)
+
+            val y = if(state.isVertical != null){
+                if (state.isVertical) {
+                    state.to.y + (currentIndex * spacingPx)
                 } else {
                     state.to.y
                 }
             }else{
                 state.to.y
             }
-            animY.animateTo(y, animSpec)
-        }.invokeOnCompletion {
-            state.onEachCardArrive(card)
-            if (currentIndex == cards.lastIndex) {
-                onAnimationEnd(cards)
-                CardFlyManager.clear()
-                state.onComplete()
-            } else {
-                currentIndex++
+
+            coroutineScope {
+                launch { animX[i].animateTo(x, spec) }
+                launch { animY[i].animateTo(y, spec) }.join()
             }
+
+            state.onEachCardArrive(cards[currentIndex])
         }
+
+        onAnimationEnd(cards)
+        CardFlyManager.clear()
+        state.onComplete()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (currentIndex < cards.size) {
-            val card = cards[currentIndex]
+        val last = currentIndex.coerceAtLeast(0)
+        for (i in 0..last) {
+            val card = cards[i]
             val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
             Image(
                 bitmap = imageBitmap,
@@ -101,10 +101,8 @@ fun FlyingCardLayer(
                 contentScale = ContentScale.None,
                 modifier = Modifier
                     .absoluteOffset {
-                        IntOffset(
-                            animX.value.toInt(),
-                            animY.value.toInt()
-                        )
+                        IntOffset(animX[i].value.roundToInt(),
+                            animY[i].value.roundToInt())
                     }
             )
         }

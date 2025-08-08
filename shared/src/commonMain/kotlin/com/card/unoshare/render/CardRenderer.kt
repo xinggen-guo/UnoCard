@@ -165,6 +165,7 @@ private fun DrawScope.drawCornerText(
     density: Density
 ) {
     val badgeSize = size.minDimension * 0.20f
+    val fontSize = size.minDimension * 0.22f
     val pad = size.minDimension * 0.06f
     val bg = style.textColor.copy(alpha = 0.16f)
 
@@ -176,8 +177,8 @@ private fun DrawScope.drawCornerText(
         val layout = measurer.measure(
             text = text,
             style = TextStyle(
-                brush = Brush.linearGradient(listOf(Color.Cyan, Color.Magenta)),
-                fontSize = with(density) { (badgeSize).toSp() },
+                brush = Brush.linearGradient(listOf(Color.Red, Color.White, Color.Blue)),
+                fontSize = with(density) { (fontSize).toSp() },
                 fontWeight = FontWeight.Black,
                 fontStyle = FontStyle.Italic
             )

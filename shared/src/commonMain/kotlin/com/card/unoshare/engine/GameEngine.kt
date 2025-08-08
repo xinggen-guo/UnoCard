@@ -39,7 +39,7 @@ class GameEngine(
             players.forEach { p ->
 //                if(!p.isAI){
 //                    p.drawCard(drawCardByCardType(CardType.WILD_DRAW_FOUR))
-//                }else {
+//                } else {
                     p.drawCard(drawPile.removeAt(0))
 //                }
             }
@@ -53,12 +53,13 @@ class GameEngine(
         gameStatus.randomWhoFirst()
     }
 
-    fun drawCardByCardType(cardType: CardType?): Card {
-        if (cardType == null)
-            return drawPile.removeAt(0)
+    private fun drawCardByCardType(cardType: CardType?): Card {
+        return if (cardType == null)
+            drawPile.removeAt(0)
         else {
             val card = drawPile.firstOrNull { it.type == CardType.WILD_DRAW_FOUR }
-            return card ?: drawPile.get(0)
+            drawPile.remove(card)
+            card ?: drawPile[0]
         }
     }
 

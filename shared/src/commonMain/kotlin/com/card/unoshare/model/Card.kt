@@ -17,18 +17,11 @@ data class Card(
     val type: CardType,
     val number: Int? = null,
     var cardLocation:Offset? = null,
-    var cardBitmapName: String? = null,
-    var cardHandBitmapName:String? = null,
     var cardPlaying: Boolean = false
 ) {
-    init {
-        cardBitmapName = getImageShortName()
-        cardHandBitmapName = getImageShortName(true)
-    }
 
     fun setColor(color: CardColor){
         this.color = color
-        cardBitmapName = getImageShortName()
     }
 
     fun getColor():CardColor{
@@ -66,15 +59,6 @@ data class Card(
                     "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
                 }
             }
-        }
-    }
-
-    @OptIn(ExperimentalResourceApi::class)
-    suspend fun getCardImg(hand: Boolean): ImageBitmap {
-        return if(hand){
-            Res.readBytes("files/${cardHandBitmapName}.png").toImageBitmap()
-        }else {
-            Res.readBytes("files/${cardBitmapName}.png").toImageBitmap()
         }
     }
 
