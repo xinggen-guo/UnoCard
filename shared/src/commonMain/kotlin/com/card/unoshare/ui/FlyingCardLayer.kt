@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.MovingCardState
+import com.card.unoshare.render.CardBitmapManager
 import kotlinx.coroutines.launch
 
 /**
@@ -93,23 +94,19 @@ fun FlyingCardLayer(
     Box(modifier = Modifier.fillMaxSize()) {
         if (currentIndex < cards.size) {
             val card = cards[currentIndex]
-            val imageBitmap by produceState<ImageBitmap?>(initialValue = null, card.cardHandBitmapName) {
-                value = card.getCardImg(true)
-            }
-            imageBitmap?.let {
-                Image(
-                    bitmap = it,
-                    contentDescription = null,
-                    contentScale = ContentScale.None,
-                    modifier = Modifier
-                        .absoluteOffset {
-                            IntOffset(
-                                animX.value.toInt(),
-                                animY.value.toInt()
-                            )
-                        }
-                )
-            }
+            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier
+                    .absoluteOffset {
+                        IntOffset(
+                            animX.value.toInt(),
+                            animY.value.toInt()
+                        )
+                    }
+            )
         }
     }
 }

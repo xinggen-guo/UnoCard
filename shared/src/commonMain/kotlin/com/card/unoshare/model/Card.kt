@@ -2,6 +2,7 @@ package com.card.unoshare.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import com.card.unoshare.render.data.CardFace
 import com.card.unoshare.util.toImageBitmap
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import unocard.shared.generated.resources.Res
@@ -93,4 +94,6 @@ data class Card(
         }
 
     }
+
+
 }

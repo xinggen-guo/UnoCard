@@ -25,8 +25,6 @@ object CardGameResource {
 
     var bgCounter:String
 
-    var startOrRefresh: String
-
     val i18n: I18N by lazy {
         //todo
         val locale = "en"
@@ -41,18 +39,12 @@ object CardGameResource {
         bgWelcome = "files/bg_welcome.png"
         bgClockwise = "files/icon_clockwise.png"
         bgCounter = "files/icon_counter.png"
-        startOrRefresh = "files/back.png"
         cards.addAll(CardShuffler.createDeck().shuffled())
     }
 
     @OptIn(ExperimentalResourceApi::class)
     suspend fun getBgWelComeImage():ImageBitmap{
         return Res.readBytes(bgWelcome).toImageBitmap()
-    }
-
-    @OptIn(ExperimentalResourceApi::class)
-    suspend fun getStartOrRefresh():ImageBitmap{
-        return Res.readBytes(startOrRefresh).toImageBitmap()
     }
 
     @OptIn(ExperimentalResourceApi::class)

@@ -30,6 +30,8 @@ import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.Player
+import com.card.unoshare.render.CardBackManager
+import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
 import kotlinx.coroutines.delay
 import kotlin.math.PI
@@ -54,6 +56,7 @@ fun rendCardInitPage() {
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
     }
+
     bgWelcomeImg?.let {
         Image(
             bitmap = it,
@@ -83,29 +86,25 @@ fun rendCardInitPage() {
 @Composable
 fun WelcomeScreen(onStartClick: () -> Unit) {
 
-    val startOrRefreshImg by produceState<ImageBitmap?>(initialValue = null) {
-        value = CardGameResource.getStartOrRefresh()
-    }
+    val startOrRefreshImg = CardBackManager.bitmap()
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        startOrRefreshImg?.let {
-            Image(
-                bitmap = it,
-                contentDescription = null,
-                contentScale = ContentScale.None,
-                modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
-                    onStartClick()
-                }
-            )
-            Text(
-                CardGameResource.i18n.info_welcome(),
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
+        Image(
+            bitmap = startOrRefreshImg,
+            contentDescription = null,
+            contentScale = ContentScale.None,
+            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
+                onStartClick()
+            }
+        )
+        Text(
+            CardGameResource.i18n.info_welcome(),
+            color = Color.Gray,
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
 
@@ -351,26 +350,22 @@ fun StartCardGameScreen() {
 
 @Composable
 fun renderDrawArea(gameEngine: GameEngine, maxWidth: Dp, renderCard: (card: Card, player: Player) -> Unit) {
-    val startOrRefreshImg by produceState<ImageBitmap?>(initialValue = null) {
-        value = CardGameResource.getStartOrRefresh()
-    }
-    startOrRefreshImg?.let {
-        val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
-        val totalWidth = it.width.dp
-        val offsetX = -(area - totalWidth) / 2
-        Image(
-            bitmap = it,
-            contentDescription = null,
-            contentScale = ContentScale.None,
-            modifier = Modifier.offset(x = offsetX).onGloballyPositioned {
-                drawCardOffset = it.localToWindow(Offset.Zero)
-            }.clickable(enabled = !gameEngine.getCurrentPlayer().isAI, onClick = {
-                val player = gameEngine.getCurrentPlayer()
-                val card = gameEngine.drawCardFromPile()
-                renderCard(card.get(0), player)
-            })
-        )
-    }
+    val startOrRefreshImg = CardBackManager.bitmap()
+    val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
+    val totalWidth = startOrRefreshImg.width.dp
+    val offsetX = -(area - totalWidth) / 2
+    Image(
+        bitmap = startOrRefreshImg,
+        contentDescription = null,
+        contentScale = ContentScale.None,
+        modifier = Modifier.offset(x = offsetX).onGloballyPositioned {
+            drawCardOffset = it.localToWindow(Offset.Zero)
+        }.clickable(enabled = !gameEngine.getCurrentPlayer().isAI, onClick = {
+            val player = gameEngine.getCurrentPlayer()
+            val card = gameEngine.drawCardFromPile()
+            renderCard(card.get(0), player)
+        })
+    )
 }
 
 @Composable
@@ -387,28 +382,21 @@ fun renderDiscardArea(gameEngine: GameEngine) {
             contentAlignment = Alignment.Center
         ) {
             playCards.forEachIndexed { index, card ->
-                val imageBitmap by produceState<ImageBitmap?>(
-                    initialValue = null,
-                    card.cardBitmapName
-                ) {
-                    value = card.getCardImg(hand = false)
-                }
+                val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = false)
                 val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
                 val totalWidth = (playCards.size - 1) * offsetCardPadding
                 val startX = (area - totalWidth.dp) / 2  // 起始点偏移到 area 中心
                 val offsetX = startX + (index * offsetCardPadding).dp
-                imageBitmap?.let { img ->
-                    Image(
-                        bitmap = img,
-                        contentDescription = null,
-                        contentScale = ContentScale.None,
-                        modifier = Modifier.offset(x = offsetX).onGloballyPositioned {
-                            if (index == playCards.size - 1) {
-                                disCardOffset = it.localToWindow(Offset.Zero)
-                            }
+                Image(
+                    bitmap = imageBitmap,
+                    contentDescription = null,
+                    contentScale = ContentScale.None,
+                    modifier = Modifier.offset(x = offsetX).onGloballyPositioned {
+                        if (index == playCards.size - 1) {
+                            disCardOffset = it.localToWindow(Offset.Zero)
                         }
-                    )
-                }
+                    }
+                )
 
             }
         }
@@ -424,10 +412,7 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
         contentAlignment = Alignment.CenterStart
     ) {
         cards.forEachIndexed { index, card ->
-            val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getCardImg(true)
-            }
-
+            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
             val canPlayCard = player == gameEngine.getCurrentPlayer()
             val colorFilter = if (!canPlayCard) ColorFilter.tint(
                 color = Color(0xFF555555),
@@ -439,20 +424,18 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
             val startY = -totalHeight / 2  // 第0张卡的offset起点
             val offsetY = startY + index * offsetCardPadding
 
-            imageBitmap?.let {
-                Image(
-                    bitmap = it,
-                    colorFilter = colorFilter,
-                    contentDescription = null,
-                    contentScale = ContentScale.None,
-                    modifier = Modifier.offset(y = offsetY.dp).onGloballyPositioned {
-                        if (index == cards.size - 1) {
-                            player.drawCardOffset = it.localToWindow(Offset.Zero)
-                        }
-                        card.cardLocation = it.localToWindow(Offset.Zero)
+            Image(
+                bitmap = imageBitmap,
+                colorFilter = colorFilter,
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier.offset(y = offsetY.dp).onGloballyPositioned {
+                    if (index == cards.size - 1) {
+                        player.drawCardOffset = it.localToWindow(Offset.Zero)
                     }
-                )
-            }
+                    card.cardLocation = it.localToWindow(Offset.Zero)
+                }
+            )
         }
     }
 }
@@ -466,9 +449,7 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
         contentAlignment = Alignment.CenterEnd
     ) {
         cards.forEachIndexed { index, card ->
-            val imageBitmap by produceState<ImageBitmap?>(initialValue = null) {
-                value = card.getCardImg(true)
-            }
+            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
             val canPlayCard = player == gameEngine.getCurrentPlayer()
             val colorFilter = if (!canPlayCard) ColorFilter.tint(
                 color = Color(0xFF555555),
@@ -480,20 +461,18 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
             val startY = -totalHeight / 2  // 第0张卡的offset起点
             val offsetY = startY + index * offsetCardPadding
 
-            imageBitmap?.let {
-                Image(
-                    bitmap = it,
-                    colorFilter = colorFilter,
-                    contentDescription = null,
-                    contentScale = ContentScale.None,
-                    modifier = Modifier.offset(y = offsetY.dp).onGloballyPositioned {
-                        if (index == cards.size - 1) {
-                            player.drawCardOffset = it.localToWindow(Offset.Zero)
-                        }
-                        card.cardLocation = it.localToWindow(Offset.Zero)
+            Image(
+                bitmap = imageBitmap,
+                colorFilter = colorFilter,
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier.offset(y = offsetY.dp).onGloballyPositioned {
+                    if (index == cards.size - 1) {
+                        player.drawCardOffset = it.localToWindow(Offset.Zero)
                     }
-                )
-            }
+                    card.cardLocation = it.localToWindow(Offset.Zero)
+                }
+            )
         }
     }
 }
@@ -516,11 +495,9 @@ fun BottomHandStack(
                 card,
                 GameInitializer.gameEngine.getTopCard()
             )
-            val imageBitmap by produceState<ImageBitmap?>(initialValue = null, canPlayCard) {
-                value = card.getCardImg(true)
-            }
 
-            imageBitmap?.let {
+            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            imageBitmap.let {
                 val totalWidth = (cards.size - 1) * offsetCardPadding
                 val startX = -totalWidth / 2  // 第0张卡的offset起点
                 val offsetX = startX + index * offsetCardPadding
