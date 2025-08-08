@@ -58,7 +58,7 @@ class I18N_en_US_Impl : I18N { // I18N_en_US_Impl
     override fun info_save(filename: String?) =
         if (filename.isNullOrEmpty()) "Failed to save your game replay" else "Replay file saved as $filename"
     override fun info_skipped(player: Int) = "${p(player)}: Skipped"
-    override fun info_welcome() = "WELCOME TO UNO CARD GAME, CLICK UNO TO START"
+    override fun info_welcome() = "WELCOME TO CARD GAME, CLICK TO START"
     override fun info_yourTurn() = "Select a card to play, or draw a card from deck"
     override fun info_yourTurn_stackDraw2(drawCount: Int, mode: Int) =
         if (mode == 1) "Stack a +2 card, or draw $drawCount cards" else "Stack a +2/+4 card, or draw $drawCount cards"

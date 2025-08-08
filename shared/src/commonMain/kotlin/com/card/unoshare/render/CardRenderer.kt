@@ -18,6 +18,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -63,11 +64,11 @@ fun renderCardBitmap(
 
         when (face) {
             is CardFace.Number -> {
-                drawCenteredText("${face.value}", style, measurer, density)
+                drawCenteredTextChange("${face.value}", style, measurer, density)
                 if (style.showCornerMarks) drawCornerText("${face.value}", style, measurer, density)
             }
             CardFace.Plus2 -> {
-                drawCenteredText("+2", style, measurer, density)
+                drawCenteredTextChange("+2", style, measurer, density)
                 if (style.showCornerMarks) drawCornerText("+2", style, measurer, density)
             }
             CardFace.Reverse -> {
@@ -114,6 +115,48 @@ private fun DrawScope.drawCenteredText(
     drawText(layout, topLeft = Offset(x, y))
 }
 
+private fun DrawScope.drawCenteredTextChange(
+    text: String,
+    style: CardStyle,
+    measurer: TextMeasurer,
+    density: Density
+) {
+    val fontPx = min(size.width, size.height) * 0.5f
+
+    // 使用渐变色
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(Color.Cyan, Color.Magenta),
+        start = Offset(0f, 0f),
+        end = Offset(size.width, size.height)
+    )
+
+    // 添加阴影、斜体、描边等
+    val layout = measurer.measure(
+        text = text,
+        style = TextStyle(
+            brush = gradientBrush,
+            fontSize = with(density) { fontPx.toSp() },
+            fontWeight = FontWeight.ExtraBold,
+            fontStyle = FontStyle.Italic
+        )
+    )
+
+    val x = (size.width - layout.size.width) / 2f
+    val y = (size.height - layout.size.height) / 2f
+
+    // 在背景加几何图形装饰
+    drawCircle(
+        color = style.textColor.copy(alpha = 0.15f),
+        radius = size.minDimension / 2.5f,
+        center = center
+    )
+
+    // 旋转一点点，打破 UNO 统一感
+    rotate(degrees = 8f, pivot = center) {
+        drawText(layout, topLeft = Offset(x, y))
+    }
+}
+
 @OptIn(ExperimentalTextApi::class)
 private fun DrawScope.drawCornerText(
     text: String,
@@ -121,77 +164,65 @@ private fun DrawScope.drawCornerText(
     measurer: TextMeasurer,
     density: Density
 ) {
-    val fontPx = size.height * 0.16f
-    val layout = measurer.measure(
-        text = text,
-        style = TextStyle(
-            color = style.textColor,
-            fontSize = with(density) { fontPx.toSp() },
-            fontWeight = FontWeight.SemiBold
-        )
-    )
+    val badgeSize = size.minDimension * 0.20f
+    val pad = size.minDimension * 0.06f
+    val bg = style.textColor.copy(alpha = 0.16f)
 
-    // 左上
-    drawText(layout, topLeft = Offset(style.borderPx * 1.2f, style.borderPx * 1.2f))
-    // 右下（旋转）
-    rotate(degrees = 180f, pivot = Offset(size.width, size.height)) {
-        drawText(layout, topLeft = Offset(style.borderPx * 1.2f, style.borderPx * 1.2f))
+    fun badgeAt(x: Float, y: Float) {
+        drawRoundRect(color = bg,
+            topLeft = Offset(x, y),
+            size = Size(badgeSize, badgeSize),
+            cornerRadius = CornerRadius(badgeSize * 0.25f))
+        val layout = measurer.measure(
+            text = text,
+            style = TextStyle(
+                brush = Brush.linearGradient(listOf(Color.Cyan, Color.Magenta)),
+                fontSize = with(density) { (badgeSize).toSp() },
+                fontWeight = FontWeight.Black,
+                fontStyle = FontStyle.Italic
+            )
+        )
+        val tx = x + (badgeSize - layout.size.width) / 2f
+        val ty = y + (badgeSize - layout.size.height) / 2f
+        rotate(12f, Offset(x + badgeSize/2f, y + badgeSize/2f)) {
+            drawText(layout, topLeft = Offset(tx, ty))
+        }
     }
+
+    badgeAt(pad, pad)
+    badgeAt(size.width - pad - badgeSize, size.height - pad - badgeSize)
 }
 
 private fun DrawScope.drawReverseSymbol(style: CardStyle) {
-    val cx = size.width / 2f
-    val cy = size.height / 2f
-    val r  = min(size.width, size.height) * 0.28f
-    val stroke = Stroke(width = min(size.width, size.height) * 0.05f, cap = StrokeCap.Round)
-
-    drawArc(
-        color = style.textColor,
-        startAngle = 220f, sweepAngle = 160f, useCenter = false,
-        topLeft = Offset(cx - r, cy - r), size = Size(r * 2, r * 2), style = stroke
-    )
-    drawArrowTip(polar(cx, cy, r, 220f), 230f, r * 0.22f, style.textColor)
-
-    drawArc(
-        color = style.textColor,
-        startAngle = 40f, sweepAngle = 160f, useCenter = false,
-        topLeft = Offset(cx - r, cy - r), size = Size(r * 2, r * 2), style = stroke
-    )
-    drawArrowTip(polar(cx, cy, r, 40f), 50f, r * 0.22f, style.textColor)
+    val r = size.minDimension * 0.22f
+    val c = center
+    val path = Path().apply {
+        // two opposing chevrons made of diamonds
+        val d = r * 0.55f
+        moveTo(c.x - d, c.y - d); lineTo(c.x, c.y - r); lineTo(c.x + d, c.y - d); close()
+        moveTo(c.x + d, c.y + d); lineTo(c.x, c.y + r); lineTo(c.x - d, c.y + d); close()
+    }
+    drawPath(path, color = style.textColor)
 }
 
 private fun DrawScope.drawSkipSymbol(style: CardStyle) {
-    val cx = size.width / 2f
-    val cy = size.height / 2f
-    val r  = min(size.width, size.height) * 0.30f
-    val strokeW = min(size.width, size.height) * 0.06f
-
-    drawCircle(color = style.textColor, radius = r, center = Offset(cx, cy), style = Stroke(strokeW))
-    drawLine(
-        color = style.textColor,
-        start = Offset(cx - r * 0.7f, cy + r * 0.7f),
-        end   = Offset(cx + r * 0.7f, cy - r * 0.7f),
-        strokeWidth = strokeW
-    )
+    val s = size.minDimension * 0.28f
+    val w = s * 0.22f
+    drawLine(style.textColor, center - Offset(s, s), center + Offset(s, s), strokeWidth = w)
+    drawLine(style.textColor, center + Offset(s, -s), center - Offset(s, -s), strokeWidth = w)
 }
 
 private fun DrawScope.drawWildPie(style: CardStyle) {
-    val cx = size.width / 2f
-    val cy = size.height / 2f
-    val r  = min(size.width, size.height) * 0.28f
-    val colors = listOf(
-        Color(0xFFE45757), // 红
-        Color(0xFF4AAE5F), // 绿
-        Color(0xFF3D6ACB), // 蓝
-        Color(0xFFE6A740)  // 黄
+    val r = size.minDimension * 0.18f
+    val colors = listOf(Color(0xFF00BFA5), Color(0xFFFF6D00), Color(0xFFAA00FF), Color(0xFF7CB342))
+    val centers = listOf(
+        center + Offset(-r, 0f), center + Offset(r, 0f),
+        center + Offset(0f, -r), center + Offset(0f, r)
     )
-    var start = -45f
-    colors.forEach {
-        drawArc(
-            color = it, startAngle = start, sweepAngle = 90f, useCenter = true,
-            topLeft = Offset(cx - r, cy - r), size = Size(r * 2, r * 2)
-        )
-        start += 90f
+    centers.zip(colors).forEach { (p, c) ->
+        drawPath(Path().apply {
+            moveTo(p.x, p.y - r); lineTo(p.x + r, p.y); lineTo(p.x, p.y + r); lineTo(p.x - r, p.y); close()
+        }, color = c)
     }
 }
 
