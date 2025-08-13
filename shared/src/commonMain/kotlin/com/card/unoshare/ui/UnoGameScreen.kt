@@ -23,13 +23,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.card.unoshare.audio.GameAudio
 import com.card.unoshare.engine.CardGameResource
+import com.card.unoshare.engine.GameAudioManager
 import com.card.unoshare.engine.GameEngine
 import com.card.unoshare.engine.GameInitializer
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.Player
+import com.card.unoshare.model.UserSettings
 import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
@@ -53,6 +56,7 @@ var disCardOffset: Offset? = null
 
 @Composable
 fun rendCardInitPage() {
+
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
     }
@@ -67,6 +71,8 @@ fun rendCardInitPage() {
     }
 
     var gameStarted by remember { mutableStateOf(false) }
+
+    GameAudioManager.playCardBgm()
 
     if (!gameStarted) {
         WelcomeScreen(onStartClick = {
@@ -157,11 +163,17 @@ fun StartCardGameScreen() {
         if (winner == null) {
             gameEngine.playRoundByAi(playCard = { card ->
                 if (card.cardLocation != null && disCardOffset != null) {
+                    GameAudioManager.playCardSound()
                     CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                         card.cardLocation = null
+                        var cardIndex = 0
+                        GameAudioManager.playDrawCardSound()
                         refreshGameState { cards, player ->
                             CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI, onEachCardArrive = {
-
+                                cardIndex ++
+                                if(cardIndex < cards.size){
+                                    GameAudioManager.playDrawCardSound()
+                                }
                             }, onArrive = {
                                 gameEngine.drawCardComplete(cards)
                                 refreshGameState(null)
@@ -174,6 +186,7 @@ fun StartCardGameScreen() {
                 return@playRoundByAi true
             }, drawCard = { player, card ->
                 if (player.drawCardOffset != null && drawCardOffset != null) {
+                    GameAudioManager.playDrawCardSound()
                     CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
                         refreshGameState { cards, player ->
                             CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
@@ -182,7 +195,6 @@ fun StartCardGameScreen() {
                                 renderLeftRefreshCards = !renderLeftRefreshCards
                                 renderRightRefreshCards = !renderRightRefreshCards
                             }
-
                         }
                     }
                 }
@@ -207,6 +219,7 @@ fun StartCardGameScreen() {
             contentAlignment = Alignment.Center
         ) {
             renderDrawArea(gameEngine, maxWidth) { card, player ->
+                GameAudioManager.playDrawCardSound()
                 CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
                     card.cardLocation = null
                     if(!gameEngine.checkDrawCard(card,player)){
@@ -224,6 +237,9 @@ fun StartCardGameScreen() {
         )
 
         winner?.let {
+
+            GameAudioManager.playWinSound()
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Column (modifier = Modifier.align(Alignment.TopCenter).padding(top = 30.dp)){
@@ -292,9 +308,14 @@ fun StartCardGameScreen() {
                                         CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                                             card.cardLocation = null
                                             refreshGameState { cards, player ->
+                                                var cardIndex = 0
+                                                GameAudioManager.playDrawCardSound()
                                                 CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI,
                                                     onEachCardArrive = {card: Card ->
-//                                                     gameEngine.drawCard(card)
+                                                        cardIndex ++
+                                                        if(cardIndex < cards.size){
+                                                            GameAudioManager.playDrawCardSound()
+                                                        }
                                                 }, onArrive = {
                                                     gameEngine.drawCardComplete(cards)
                                                     refreshGameState(null)
@@ -527,6 +548,7 @@ fun BottomHandStack(
                                     ColorSelectorDialogController.show {
                                         gameEngine.playSelectColor(it, card, player)
                                         playCard(card)
+                                        GameAudioManager.playCardSound()
                                     }
                                 }
 
@@ -534,6 +556,7 @@ fun BottomHandStack(
                                     GameInitializer.gameEngine.playTurn(card, player)
                                     alphaValue = 0f
                                     playCard(card)
+                                    GameAudioManager.playCardSound()
                                 }
                             }
 
@@ -592,4 +615,5 @@ fun ColorSelectorDialogHost() {
         }
     }
 }
+
 

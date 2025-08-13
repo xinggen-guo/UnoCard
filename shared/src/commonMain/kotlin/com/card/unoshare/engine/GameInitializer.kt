@@ -15,7 +15,7 @@ object GameInitializer {
 
     init {
         val p1 = Player("1", "Alice", isAI = true, direction = Alignment.CenterStart)
-        val p2 =Player("2", "You", isAI = false, direction = Alignment.BottomCenter)
+        val p2 =Player("2", UserSettings.playerName, isAI = false, direction = Alignment.BottomCenter)
         val p3 =  Player("3", "Bella", isAI = true, direction = Alignment.CenterEnd)
         gameEngine =  GameEngine(listOf(p1, p2, p3), SpecialRuleSet())
     }

@@ -1,6 +1,10 @@
 package com.card.unoshare
 
-import android.app.Application
+import android.content.Context
+import com.card.unoshare.audio.AudioPlayerAndroid
+import com.card.unoshare.audio.GameAudio
+import com.card.unoshare.config.UserConfig
+
 
 /**
  * @author xinggen.guo
@@ -9,8 +13,10 @@ import android.app.Application
  */
 object ObjectUnoCommon {
 
-    fun init(context: Application){
-
+    fun init(context: Context){
+        val audioPlayer = AudioPlayerAndroid(context)
+        GameAudio.init(audioPlayer)
+        UserConfig.init(context)
     }
 
 }

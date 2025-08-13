@@ -13,6 +13,7 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    sourceSets["main"].assets.srcDir("${rootDir}/shared/src/commonMain/resources")
     buildFeatures {
         compose = true
     }
