@@ -22,4 +22,6 @@ object UserSettings {
         get() = UserConfig.getString(ConfigKeys.PLAYER_NAME, "You")
         set(value) = UserConfig.setString(ConfigKeys.PLAYER_NAME, value)
 
+    val gameName: String
+        get() = UserConfig.getGameName()
 }

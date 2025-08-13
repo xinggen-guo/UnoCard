@@ -37,6 +37,7 @@ kotlin {
                     implementation(material)
                     implementation(components.resources)
                     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+                    implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
                 }
             }
         }

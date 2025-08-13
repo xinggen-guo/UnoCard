@@ -19,11 +19,13 @@ object CardGameResource {
 
     val cards = mutableListOf<Card>()
 
-    var bgWelcome: String
+    private var bgWelcome: String = "files/bg_welcome.png"
 
-    var bgClockwise: String
+    private var bgClockwise: String = "files/icon_clockwise.png"
 
-    var bgCounter:String
+    private var bgCounter:String = "files/icon_counter.png"
+
+    private var victoryPic: String = "files/victory.png"
 
     val i18n: I18N by lazy {
         //todo
@@ -36,9 +38,6 @@ object CardGameResource {
     }
 
     init {
-        bgWelcome = "files/bg_welcome.png"
-        bgClockwise = "files/icon_clockwise.png"
-        bgCounter = "files/icon_counter.png"
         cards.addAll(CardShuffler.createDeck().shuffled())
     }
 
@@ -55,5 +54,10 @@ object CardGameResource {
     @OptIn(ExperimentalResourceApi::class)
     suspend fun getCounterWise(): ImageBitmap {
         return Res.readBytes(bgCounter).toImageBitmap()
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    suspend fun getVictoryPic(): ImageBitmap {
+        return Res.readBytes(victoryPic).toImageBitmap()
     }
 }

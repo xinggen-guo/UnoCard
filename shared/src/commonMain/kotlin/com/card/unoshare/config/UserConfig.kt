@@ -14,4 +14,6 @@ expect object UserConfig {
 
     fun setInt(key: String, value: Int)
     fun getInt(key: String, defaultValue: Int = 0): Int
+
+    fun getGameName():String
 }

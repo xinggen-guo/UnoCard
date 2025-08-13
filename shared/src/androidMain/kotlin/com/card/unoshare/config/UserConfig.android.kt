@@ -2,6 +2,7 @@ package com.card.unoshare.config
 
 import android.content.Context
 import android.preference.PreferenceManager
+import com.card.unoshare.R
 
 /**
  * @author xinggen.guo
@@ -41,5 +42,9 @@ actual object UserConfig {
 
     actual fun getInt(key: String, defaultValue: Int): Int {
         return prefs.getInt(key, defaultValue)
+    }
+
+    actual fun getGameName():String {
+        return appContext.getString(R.string.app_name)
     }
 }

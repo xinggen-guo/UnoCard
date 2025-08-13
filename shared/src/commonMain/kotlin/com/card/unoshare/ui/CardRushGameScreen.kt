@@ -21,9 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.card.unoshare.audio.GameAudio
 import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameAudioManager
 import com.card.unoshare.engine.GameEngine
@@ -32,7 +30,6 @@ import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.Player
-import com.card.unoshare.model.UserSettings
 import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
@@ -55,7 +52,7 @@ var drawCardOffset: Offset? = null
 var disCardOffset: Offset? = null
 
 @Composable
-fun rendCardInitPage() {
+fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit) {
 
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
@@ -74,15 +71,16 @@ fun rendCardInitPage() {
 
     GameAudioManager.playCardBgm()
 
+    var gameEngine:GameEngine?
     if (!gameStarted) {
         WelcomeScreen(onStartClick = {
-            val gameEngine = GameInitializer.gameEngine
-            gameEngine.startGame()
+            gameEngine = GameInitializer.gameEngine
+            gameEngine?.startGame()
             gameStarted = true
         })
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
-            StartCardGameScreen()
+            StartCardGameScreen(onWin)
             FlyingCardLayer()
         }
     }
@@ -115,7 +113,7 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
 }
 
 @Composable
-fun StartCardGameScreen() {
+fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
 
     val gameEngine = GameInitializer.gameEngine
     var currentPlayerName by remember { mutableStateOf("") }
@@ -163,9 +161,10 @@ fun StartCardGameScreen() {
         if (winner == null) {
             gameEngine.playRoundByAi(playCard = { card ->
                 if (card.cardLocation != null && disCardOffset != null) {
-                    GameAudioManager.playCardSound()
                     CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                         card.cardLocation = null
+                        GameAudioManager.playCardSound()
+                        checkPlayUno(player = gameEngine.getCurrentPlayer())
                         var cardIndex = 0
                         GameAudioManager.playDrawCardSound()
                         refreshGameState { cards, player ->
@@ -237,33 +236,7 @@ fun StartCardGameScreen() {
         )
 
         winner?.let {
-
-            GameAudioManager.playWinSound()
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column (modifier = Modifier.align(Alignment.TopCenter).padding(top = 30.dp)){
-                Text(
-                    text = "🎉 Winner: $it 🎉",
-                    fontSize = 20.sp,
-                    color = Color.Red
-                )
-
-                Text(
-                    text = CardGameResource.i18n.info_gameOver(),
-                    fontSize = 20.sp,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 5.dp).clickable {
-                        gameEngine.startGame()
-                        currentPlayerName = gameEngine.getCurrentPlayerName()
-                        topCard = gameEngine.getTopCard().displayText()
-                        allHands = gameEngine.getAllPlayerHands()
-                        gameClockWise = gameEngine.gameClockwise()
-                        winner = null
-                        needCycleHandCard += 1
-                    }
-                )
-            }
+            onWin(gameEngine)
         }
 
         val imageClockBitmap by produceState<ImageBitmap?>(initialValue = null, gameClockWise) {
@@ -307,6 +280,7 @@ fun StartCardGameScreen() {
                                     if (disCardOffset != null && card.cardLocation != null) {
                                         CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
                                             card.cardLocation = null
+                                            checkPlayUno(gameEngine.getCurrentPlayer())
                                             refreshGameState { cards, player ->
                                                 var cardIndex = 0
                                                 GameAudioManager.playDrawCardSound()
@@ -613,6 +587,12 @@ fun ColorSelectorDialogHost() {
                 }
             }
         }
+    }
+}
+
+fun checkPlayUno(player: Player){
+    if(player.hand.size <= 2){
+        GameAudioManager.playUno()
     }
 }
 

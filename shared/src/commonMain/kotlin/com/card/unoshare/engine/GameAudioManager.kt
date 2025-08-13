@@ -33,4 +33,14 @@ object GameAudioManager {
             GameAudio.playDraw()
         }
     }
+
+    fun playUno(){
+        if (UserSettings.isSoundOn) {
+            GameAudio.playUno()
+        }
+    }
+
+    fun stopAllSound(){
+        GameAudio.stopAll()
+    }
 }
