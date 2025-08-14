@@ -36,9 +36,11 @@ object GameScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        rendCardInitPage {
-            navigator.push(VictoryScreen(it))
-        }
+        rendCardInitPage(onWin = {gameEngine ->
+            navigator.push(VictoryScreen(gameEngine))
+        }, onSettingsClick = {
+            navigator.push(SettingsScreen)
+        })
     }
 }
 
@@ -50,5 +52,16 @@ class VictoryScreen(val gameEngine: GameEngine) : Screen {
         VictoryScreen(gameEngine = gameEngine, onFinish = {
             navigator.popUntilRoot()
         })
+    }
+}
+
+object SettingsScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        SettingsScreen(
+            onBack = { navigator.pop() }
+        )
     }
 }

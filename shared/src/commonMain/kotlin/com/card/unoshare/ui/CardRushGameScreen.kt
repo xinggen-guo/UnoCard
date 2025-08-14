@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +54,7 @@ var drawCardOffset: Offset? = null
 var disCardOffset: Offset? = null
 
 @Composable
-fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit) {
+fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()->Unit) {
 
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
@@ -72,18 +74,39 @@ fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit) {
     GameAudioManager.playCardBgm()
 
     var gameEngine:GameEngine?
-    if (!gameStarted) {
-        WelcomeScreen(onStartClick = {
-            gameEngine = GameInitializer.gameEngine
-            gameEngine?.startGame()
-            gameStarted = true
-        })
-    } else {
-        Box(modifier = Modifier.fillMaxSize()) {
-            StartCardGameScreen(onWin)
-            FlyingCardLayer()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!gameStarted) {
+            WelcomeScreen(onStartClick = {
+                gameEngine = GameInitializer.gameEngine
+                gameEngine?.startGame()
+                gameStarted = true
+            })
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                StartCardGameScreen(onWin = onWin)
+                FlyingCardLayer()
+            }
+        }
+
+        // 左下角设置按钮
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp), // 与边缘有间距
+            contentAlignment = Alignment.BottomStart
+        ) {
+            IconButton(onClick = onSettingsClick) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
     }
+
 }
 
 

@@ -43,4 +43,8 @@ object GameAudioManager {
     fun stopAllSound(){
         GameAudio.stopAll()
     }
+
+    fun stopBgMusic(){
+        GameAudio.stopBgm()
+    }
 }
