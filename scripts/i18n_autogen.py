@@ -1,8 +1,24 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Auto Translate Script
+---------------------
+Reads English i18n json and generates multi-language translations using LibreTranslate API.
+Supports incremental updates and customizable language configuration.
+
+Dependencies:
+  pip install requests
+
+Author: xinggen.guo
+Date: 2025-08-14
+"""
+
+
 import json
 import os
 
 # Configuration
-I18N_DIR = "shared/src/commonMain/composeResources/i18n"
+I18N_DIR = "shared/src/commonMain/resources/i18n"
 OUTPUT_KT = "shared/src/commonMain/kotlin/i18n/I18nKeys.kt"
 
 # Collect all unique keys from language files
