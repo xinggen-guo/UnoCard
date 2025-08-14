@@ -1,5 +1,6 @@
 package com.card.unoshare.engine
 
+import com.card.unoshare.language.I18nManager
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
@@ -9,6 +10,7 @@ import com.card.unoshare.rule.EffectApplier.applyCardEffect
 import com.card.unoshare.rule.RuleChecker
 import com.card.unoshare.rule.SpecialRuleSet
 import com.card.unoshare.util.CardShuffler
+import i18n.I18nKeys
 
 /**
  * @author xinggen.guo
@@ -186,22 +188,19 @@ class GameEngine(
     fun gameClockwise():Boolean = gameStatus.isCounterWise
 
     fun getTipInfoYouPlayer():String{
-        return CardGameResource.i18n.info_yourTurn()
+        return I18nManager.get(I18nKeys.info_you_return)
     }
 
     fun getLastDirectionAndCardInfo(): String {
         return if (discardPile.isEmpty()) {
             getTopCard().displayText()
         } else {
-            CardGameResource.i18n.act_playCard(
-                gameStatus.getLastPlayer().getDirectionPosition(),
-                getTopCard().displayText()
-            )
+            "${gameStatus.getLastPlayer().getDirectionPosition()}:${getTopCard().displayText()}"
         }
     }
 
     fun getPlayerPositionStr(player: Player): String {
-        return CardGameResource.i18n.act_playCard(player.getDirectionPosition())
+        return player.getDirectionPosition()
     }
 
     fun countSore(): Int {

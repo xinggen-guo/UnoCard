@@ -1,0 +1,12 @@
+{
+  "greeting": "你好",
+  "welcome": "欢迎来到UNO游戏！",
+  "victoryMessage": "🎉 胜利者：{} 🎉",
+  "toggleMusic": "切换音乐",
+  "toggleSound": "切换音效",
+  "back": "返回",
+  "playerName": "玩家名称",
+  "enterName": "请输入你的名称",
+  "randomName": "随机名称",
+  "settings": "游戏设置"
+}

@@ -2,12 +2,9 @@ package com.card.unoshare.engine
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.card.unoshare.model.Card
-import com.card.unoshare.language.I18N
 import com.card.unoshare.util.CardShuffler
 import com.card.unoshare.util.toImageBitmap
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.ResourceEnvironment
 import unocard.shared.generated.resources.Res
 
 /**
@@ -26,16 +23,6 @@ object CardGameResource {
     private var bgCounter:String = "files/icon_counter.png"
 
     private var victoryPic: String = "files/victory.png"
-
-    val i18n: I18N by lazy {
-        //todo
-        val locale = "en"
-        when {
-            locale.contains("zh", ignoreCase = true) -> I18N.ZH_CN
-            locale.contains("ja", ignoreCase = true) -> I18N.JA_JP
-            else -> I18N.EN_US
-        }
-    }
 
     init {
         cards.addAll(CardShuffler.createDeck().shuffled())

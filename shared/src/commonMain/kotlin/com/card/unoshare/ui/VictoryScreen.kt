@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameAudioManager
 import com.card.unoshare.engine.GameEngine
+import com.card.unoshare.language.I18nManager
+import i18n.I18nKeys
 import kotlinx.coroutines.delay
 
 /**
@@ -78,7 +80,7 @@ fun VictoryScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "🎉 Winner: ${gameEngine.getWinnerName()} 🎉",
+                    text = I18nManager.get(I18nKeys.victoryMessage,gameEngine.getWinnerName()?:""),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4CAF50)

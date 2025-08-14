@@ -3,6 +3,8 @@ package com.card.unoshare.model
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import com.card.unoshare.engine.CardGameResource
+import com.card.unoshare.language.I18nManager
+import i18n.I18nKeys
 
 /**
  * @author xinggen.guo
@@ -27,23 +29,23 @@ data class Player(
         hand.add(card)
     }
 
-    fun getDirectionPosition():Int{
+    fun getDirectionPosition():String{
         val position = when (direction) {
 
             Alignment.BottomCenter -> {
-                0
+                I18nManager.get(I18nKeys.you)
             }
 
             Alignment.CenterStart -> {
-                1
+                I18nManager.get(I18nKeys.west)
             }
 
             Alignment.CenterEnd -> {
-                3
+                I18nManager.get(I18nKeys.east)
             }
 
             else ->
-                0
+                ""
         }
         return position
     }

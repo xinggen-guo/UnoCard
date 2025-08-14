@@ -28,13 +28,16 @@ import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameAudioManager
 import com.card.unoshare.engine.GameEngine
 import com.card.unoshare.engine.GameInitializer
+import com.card.unoshare.language.I18nManager
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.CardColor
 import com.card.unoshare.model.CardType
 import com.card.unoshare.model.Player
+import com.card.unoshare.model.UserSettings
 import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
+import i18n.I18nKeys
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -60,6 +63,8 @@ fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()-
         value = CardGameResource.getBgWelComeImage()
     }
 
+    var currentName by remember { mutableStateOf(UserSettings.playerName) }
+
     bgWelcomeImg?.let {
         Image(
             bitmap = it,
@@ -84,8 +89,15 @@ fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()-
             })
         } else {
             Box(modifier = Modifier.fillMaxSize()) {
-                StartCardGameScreen(onWin = onWin)
-                FlyingCardLayer()
+                if(currentName.isEmpty()){
+                   NameInputDialog {
+                       UserSettings.playerName = it
+                       currentName = it
+                   }
+                }else {
+                    StartCardGameScreen(onWin = onWin)
+                    FlyingCardLayer()
+                }
             }
         }
 
@@ -128,7 +140,7 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
             }
         )
         Text(
-            CardGameResource.i18n.info_welcome(),
+            I18nManager.get(I18nKeys.welcome_and_start),
             color = Color.Gray,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -137,7 +149,6 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
 
 @Composable
 fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
-
     val gameEngine = GameInitializer.gameEngine
     var currentPlayerName by remember { mutableStateOf("") }
     var topCard by remember { mutableStateOf("") }

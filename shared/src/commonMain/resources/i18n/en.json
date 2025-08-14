@@ -1,0 +1,19 @@
+{
+  "greeting": "Hello",
+  "welcome": "Welcome to Card Rush Game!",
+  "victoryMessage": "🎉 Winner: {} 🎉",
+  "toggleMusic": "Toggle Music",
+  "toggleSound": "Toggle Sound",
+  "back": "Back",
+  "playerName": "Player Name",
+  "enterName": "Please enter your name",
+  "randomName": "Random Name",
+  "settings": "Game Settings",
+  "start": "Start",
+  "you": "You",
+  "west": "West",
+  "north": "North",
+  "east": "East",
+  "info_you_return": "Select a card to play, or draw a card from deck",
+  "welcome_and_start": "WELCOME TO CARD GAME, CLICK TO START"
+}

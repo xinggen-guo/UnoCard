@@ -19,7 +19,7 @@ object UserSettings {
         set(value) = UserConfig.setBool(ConfigKeys.MUSIC_ON, value)
 
     var playerName: String
-        get() = UserConfig.getString(ConfigKeys.PLAYER_NAME, "You")
+        get() = UserConfig.getString(ConfigKeys.PLAYER_NAME, "")
         set(value) = UserConfig.setString(ConfigKeys.PLAYER_NAME, value)
 
     val gameName: String

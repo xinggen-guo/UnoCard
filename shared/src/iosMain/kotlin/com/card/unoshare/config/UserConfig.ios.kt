@@ -27,4 +27,8 @@ actual object UserConfig {
         TODO("Not yet implemented")
     }
 
+    actual fun getGameName(): String {
+        TODO("Not yet implemented")
+    }
+
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     id("org.jetbrains.compose") version "1.6.10"
     id("org.jetbrains.kotlin.native.cocoapods")
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 kotlin {
@@ -38,6 +39,7 @@ kotlin {
                     implementation(components.resources)
                     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
                     implementation("cafe.adriel.voyager:voyager-navigator:1.0.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
                 }
             }
         }
@@ -66,6 +68,9 @@ kotlin {
 }
 
 android {
+
+    sourceSets["main"].assets.srcDir("src/androidMain/assets")
+
     namespace = "com.card.unoshare"
     compileSdk = 34
     defaultConfig {
@@ -79,3 +84,13 @@ android {
 dependencies {
     implementation(libs.androidx.cardview)
 }
+
+
+//tasks.register<Copy>("copyCommonResourcesToAssets") {
+//    from("src/commonMain/resources")
+//    into("src/androidMain/assets")
+//}
+//
+//tasks.named("preBuild") {
+//    dependsOn("copyCommonResourcesToAssets")
+//}

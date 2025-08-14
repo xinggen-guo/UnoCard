@@ -28,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.card.unoshare.engine.GameAudioManager
+import com.card.unoshare.language.I18nManager
 import com.card.unoshare.model.UserSettings
+import i18n.I18nKeys
 
 /**
  * @author xinggen.guo
@@ -56,14 +58,14 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Game Settings",
+                text = I18nManager.get(I18nKeys.settings),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
             SettingsButtonWithSwitch(
-                title = "🎵 Music",
+                title = "🎵 ${I18nManager.get(I18nKeys.toggleMusic)}",
                 checked = musicOn,
                 onCheckedChange = {
                     musicOn = it
@@ -73,7 +75,7 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
             )
 
             SettingsButtonWithSwitch(
-                title = "🔊 Sound",
+                title = "🔊 ${I18nManager.get(I18nKeys.toggleSound)}",
                 checked = soundOn,
                 onCheckedChange = {
                     soundOn = it
@@ -82,7 +84,7 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 }
             )
 
-            SettingsButton("⬅️ Back", onClick = onBack)
+            SettingsButton("⬅️ ${I18nManager.get(I18nKeys.back)}", onClick = onBack)
         }
     }
 }
