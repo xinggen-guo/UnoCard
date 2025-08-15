@@ -9,11 +9,11 @@
   "enterName": "请输入你的名称",
   "randomName": "随机名称",
   "settings": "游戏设置",
-  "start": "Start",
-  "you": "You",
-  "west": "West",
-  "north": "North",
-  "east": "East",
-  "info_you_return": "Select a card to play, or draw a card from deck",
-  "welcome_and_start": "WELCOME TO CARD GAME, CLICK TO START"
+  "start": "开始",
+  "you": "你",
+  "west": "西",
+  "north": "北",
+  "east": "东",
+  "info_you_return": "选择一张牌，或者抽一张牌",
+  "welcome_and_start": "欢迎进入游戏，点击开始"
 }

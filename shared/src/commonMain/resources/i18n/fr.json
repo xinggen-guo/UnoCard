@@ -1,0 +1,19 @@
+{
+  "greeting": "Bonjour",
+  "welcome": "Bienvenue dans le jeu Card Rush !",
+  "victoryMessage": "🎉 Gagnant : {} 🎉",
+  "toggleMusic": "Activer/Désactiver la musique",
+  "toggleSound": "Activer/Désactiver le son",
+  "back": "Retour",
+  "playerName": "Nom du joueur",
+  "enterName": "Veuillez entrer votre nom",
+  "randomName": "Nom aléatoire",
+  "settings": "Paramètres du jeu",
+  "start": "Démarrer",
+  "you": "Vous",
+  "west": "Ouest",
+  "north": "Nord",
+  "east": "Est",
+  "info_you_return": "Sélectionnez une carte à jouer ou piochez une carte",
+  "welcome_and_start": "BIENVENUE DANS LE JEU DE CARTES, CLIQUEZ POUR COMMENCER"
+}

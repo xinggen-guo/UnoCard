@@ -1,0 +1,19 @@
+{
+  "greeting": "Merhaba",
+  "welcome": "Card Rush Oyununa Hoş Geldiniz!",
+  "victoryMessage": "🎉 Kazanan: {} 🎉",
+  "toggleMusic": "Müziği Aç/Kapat",
+  "toggleSound": "Sesi Aç/Kapat",
+  "back": "Geri",
+  "playerName": "Oyuncu Adı",
+  "enterName": "Lütfen adınızı girin",
+  "randomName": "Rastgele İsim",
+  "settings": "Oyun Ayarları",
+  "start": "Başla",
+  "you": "Sen",
+  "west": "Batı",
+  "north": "Kuzey",
+  "east": "Doğu",
+  "info_you_return": "Oynamak için bir kart seçin veya desteden kart çekin",
+  "welcome_and_start": "KART OYUNUNA HOŞ GELDİNİZ, BAŞLAMAK İÇİN TIKLAYIN"
+}

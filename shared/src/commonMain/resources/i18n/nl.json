@@ -1,0 +1,19 @@
+{
+  "greeting": "Hallo",
+  "welcome": "Welkom bij het Card Rush-spel!",
+  "victoryMessage": "🎉 Winnaar: {} 🎉",
+  "toggleMusic": "Muziek aan/uit",
+  "toggleSound": "Geluid aan/uit",
+  "back": "Terug",
+  "playerName": "Spelernaam",
+  "enterName": "Voer uw naam in",
+  "randomName": "Willekeurige naam",
+  "settings": "Spelinstellingen",
+  "start": "Start",
+  "you": "Jij",
+  "west": "West",
+  "north": "Noord",
+  "east": "Oost",
+  "info_you_return": "Kies een kaart om te spelen of trek een kaart van de stapel",
+  "welcome_and_start": "WELKOM BIJ HET KAARTSPEL, KLIK OM TE BEGINNEN"
+}
