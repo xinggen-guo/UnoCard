@@ -1,25 +1,36 @@
 [versions]
-agp = "8.3.1"
-kotlin = "1.9.20"
-compose = "1.5.4"
-compose-compiler = "1.5.4"
-compose-material3 = "1.1.2"
-androidx-activityCompose = "1.8.0"
-cardview = "1.0.0"
+kotlin = "2.0.20"
+agp = "8.2.0"
+
+# AndroidX Compose (Android-only)
+compose-androidx = "1.6.10"
+
+# JetBrains Compose Multiplatform (KMP)
+compose-jb = "1.7.0"
 
 [libraries]
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+# ----- AndroidX Compose (for :androidApp) -----
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-androidx" }
+androidx-compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose-androidx" }
+androidx-compose-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose-androidx" }
+androidx-compose-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose-androidx" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.8.0" }
+
+# ----- JetBrains Compose (for :shared KMP) -----
+# You won't reference these directly if you prefer the `compose.*` accessors from the Gradle plugin,
+# but keeping them here can help if you ever need explicit coordinates:
+jb-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "compose-jb" }
+jb-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose-jb" }
+jb-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-jb" }
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
+kotlinAndroid      = { id = "org.jetbrains.kotlin.android",        version.ref = "kotlin" }
+androidApplication = { id = "com.android.application",             version.ref = "agp" }
+androidLibrary     = { id = "com.android.library",                  version.ref = "agp" }
+
+# Kotlin Compose plugin (required with Kotlin 2.0+ for both Android & MPP)
+kotlinCompose      = { id = "org.jetbrains.kotlin.plugin.compose",  version.ref = "kotlin" }
+
+# JetBrains Compose Gradle plugin (resources, desktop/web bits for MPP)
+jbCompose          = { id = "org.jetbrains.compose",                version.ref = "compose-jb" }

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.kotlinCompose)
 }
 
 android {
@@ -13,13 +14,11 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    sourceSets["main"].assets.srcDir("${rootDir}/shared/src/commonMain/resources")
+    sourceSets["main"].assets.srcDirs("${rootDir}/shared/src/commonMain/resources")
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -31,19 +30,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    implementation(projects.shared)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
+    implementation(project(":shared"))
+
+    // ✅ Compose UI & Material
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.tooling)
+    implementation(libs.androidx.compose.tooling.preview)
+
+    // ✅ AndroidX support
     implementation(libs.androidx.activity.compose)
-    debugImplementation(libs.compose.ui.tooling)
 }

@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
-import com.card.unoshare.language.I18nManager
 import com.card.unoshare.model.UserSettings
 
 /**

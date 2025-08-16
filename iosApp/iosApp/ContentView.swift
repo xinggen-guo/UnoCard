@@ -1,12 +1,19 @@
 import SwiftUI
-import shared // your KMP shared module
+import shared
 
-struct ContentView: UIViewControllerRepresentable {
+struct ComposeHost: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        return MainViewController() // Kotlin function
+        SharedComposeRootControllerKt.ComposeRootController()
     }
+    func updateUIViewController(_ vc: UIViewController, context: Context) {}
+}
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        // No update needed for static UI
+@main
+struct iOSApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ComposeHost()
+                .ignoresSafeArea() // 根据需求选择
+        }
     }
 }

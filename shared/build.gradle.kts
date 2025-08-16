@@ -1,16 +1,18 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    id("org.jetbrains.compose") version "1.6.10"
+    alias(libs.plugins.jbCompose)
+
+    kotlin("plugin.compose") version "2.0.20" // Kotlin Compose Compiler
     id("org.jetbrains.kotlin.native.cocoapods")
-    kotlin("plugin.serialization") version "1.9.10"
+    kotlin("plugin.serialization") version "2.0.20"
 }
 
 kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
     }
@@ -29,7 +31,7 @@ kotlin {
     sourceSets {
 
         commonMain{
-            resources.srcDir("src/commonMain/resources")
+            resources.srcDirs("src/commonMain/resources")
             dependencies {
                 with(compose) {
                     implementation(runtime)
@@ -51,9 +53,6 @@ kotlin {
         getByName("iosArm64Main").dependsOn(iosMain)
         getByName("iosSimulatorArm64Main").dependsOn(iosMain)
 
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
     }
 
     cocoapods {
@@ -69,7 +68,7 @@ kotlin {
 
 android {
 
-    sourceSets["main"].assets.srcDir("src/androidMain/assets")
+    sourceSets["main"].assets.srcDirs("src/androidMain/assets")
 
     namespace = "com.card.unoshare"
     compileSdk = 34
@@ -77,13 +76,13 @@ android {
         minSdk = 24
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
-dependencies {
-    implementation(libs.androidx.cardview)
-}
+//dependencies {
+//    implementation(libs.androidx.cardview)
+//}
 
 
 //tasks.register<Copy>("copyCommonResourcesToAssets") {
