@@ -1,17 +1,11 @@
 package com.card.unoshare.language
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.card.unoshare.util.readResourceText
 import i18n.I18nKeys
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import unocard.shared.generated.resources.Res
 
 /**
  * @author xinggen.guo
@@ -36,9 +30,10 @@ object I18nManager {
         return value
     }
 
+    @OptIn(ExperimentalResourceApi::class)
     private suspend fun loadLanguage(lang: String): Map<String, String> {
         return try {
-            val jsonText = readResourceText("i18n/${lang}.json")
+            val jsonText = Res.readBytes("files/i18n/${lang}.json").decodeToString()
             val parsed = Json.parseToJsonElement(jsonText).jsonObject
             parsed.mapValues { it.value.jsonPrimitive.content }
         } catch (e: Exception) {

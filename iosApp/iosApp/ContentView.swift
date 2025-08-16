@@ -1,19 +1,18 @@
 import SwiftUI
+import UIKit
 import shared
 
 struct ComposeHost: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        SharedComposeRootControllerKt.ComposeRootController()
+        MainViewControllerKt.MainViewController()
     }
-    func updateUIViewController(_ vc: UIViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }
 
-@main
-struct iOSApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ComposeHost()
-                .ignoresSafeArea() // 根据需求选择
-        }
+// 你的页面
+struct ContentView: View {
+    var body: some View {
+        ComposeHost()
+            .ignoresSafeArea()
     }
 }

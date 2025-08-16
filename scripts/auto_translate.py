@@ -19,7 +19,7 @@ import time
 import openai
 
 # ==== CONFIG ====
-I18N_DIR = "shared/src/commonMain/resources/i18n"
+I18N_DIR = "shared/src/commonMain/composeResources/i18n"
 LANGUAGES_FILE = os.path.join(I18N_DIR, "languages.json")
 SOURCE_LANG = "en"
 openai.api_key = os.getenv("OPENAI_API_KEY")  # Set your API key in environment variable

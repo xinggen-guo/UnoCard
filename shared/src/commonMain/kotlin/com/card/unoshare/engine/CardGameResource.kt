@@ -16,13 +16,13 @@ object CardGameResource {
 
     val cards = mutableListOf<Card>()
 
-    private var bgWelcome: String = "files/bg_welcome.png"
+    private var bgWelcome: String = "files/images/bg_welcome.png"
 
-    private var bgClockwise: String = "files/icon_clockwise.png"
+    private var bgClockwise: String = "files/images/icon_clockwise.png"
 
-    private var bgCounter:String = "files/icon_counter.png"
+    private var bgCounter:String = "files/images/icon_counter.png"
 
-    private var victoryPic: String = "files/victory.png"
+    private var victoryPic: String = "files/images/victory.png"
 
     init {
         cards.addAll(CardShuffler.createDeck().shuffled())

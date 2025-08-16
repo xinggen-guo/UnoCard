@@ -7,4 +7,7 @@ import androidx.compose.ui.window.ComposeUIViewController
  * @date 31/07/2025 15:02
  * @description
  */
-fun MainViewController() = ComposeUIViewController { AppEntry() }
+fun MainViewController() = ComposeUIViewController {
+    AppEntry()
+    ColorSelectorDialogHost()
+}

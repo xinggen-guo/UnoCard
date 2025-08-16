@@ -1,27 +1,24 @@
 package com.card.unoshare
 
-import android.content.Context
-import com.card.unoshare.audio.AudioPlayerAndroid
+import com.card.unoshare.audio.AudioPlayerIos
 import com.card.unoshare.audio.GameAudio
-import com.card.unoshare.config.UserConfig
 import com.card.unoshare.language.I18nManager
+import com.card.unoshare.util.applicationScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
 
 /**
  * @author xinggen.guo
- * @date 01/08/2025 21:37
+ * @date 2025/8/16 18:53
  * @description
  */
 object ObjectUnoCommon {
 
-    fun init(context: Context){
-        val audioPlayer = AudioPlayerAndroid(context)
+    fun initializeGame(){
+        val audioPlayer = AudioPlayerIos()
         GameAudio.init(audioPlayer)
-        UserConfig.init(context)
-        runBlocking {
+        applicationScope.launch {
             I18nManager.init()
         }
     }
-
 }

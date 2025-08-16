@@ -1,10 +1,18 @@
 import SwiftUI
+import shared
 
 @main
 struct iOSApp: App {
-	var body: some Scene {
-		WindowGroup {
-			ContentView()
-		}
-	}
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    init(){
+        ObjectUnoCommon.shared.initializeGame()
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
 }

@@ -10,5 +10,7 @@ import platform.Foundation.languageCode
  * @description
  */
 actual fun getSystemLanguageCode(): String {
-    return NSLocale.currentLocale.languageCode
+    val raw = NSLocale.currentLocale.languageCode ?: "en"
+    // 兼容 zh-Hans / en_US 等，取前段
+    return raw.split('-', '_').firstOrNull().orEmpty().ifBlank { "en" }
 }

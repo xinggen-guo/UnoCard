@@ -7,6 +7,7 @@ compose-androidx = "1.6.10"
 
 # JetBrains Compose Multiplatform (KMP)
 compose-jb = "1.7.0"
+ui-graphics-android = "1.9.0"
 
 [libraries]
 # ----- AndroidX Compose (for :androidApp) -----
@@ -22,6 +23,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 jb-compose-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "compose-jb" }
 jb-compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose-jb" }
 jb-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-jb" }
+androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "ui-graphics-android" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
