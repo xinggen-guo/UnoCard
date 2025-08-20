@@ -4,7 +4,9 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
-import com.card.unoshare.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * @author xinggen.guo
@@ -12,6 +14,9 @@ import com.card.unoshare.R
  * @description
  */
 class AudioPlayerAndroid(private val context: Context) : AudioPlayer {
+
+    val base = "composeResources/com.card.unoshare.generated.resources"
+
     private val soundPool: SoundPool = SoundPool.Builder()
         .setMaxStreams(5)
         .setAudioAttributes(
@@ -29,16 +34,35 @@ class AudioPlayerAndroid(private val context: Context) : AudioPlayer {
 
     private var bgmPlayer: MediaPlayer? = null
 
-    init {
-        cardSoundId = soundPool.load(context, R.raw.snd_play, 1)
-        winSoundId = soundPool.load(context, R.raw.snd_win, 1)
-        loseSoundId = soundPool.load(context, R.raw.snd_lose, 1)
-        drawSoundId = soundPool.load(context, R.raw.snd_draw, 1)
-        unoSoundId = soundPool.load(context, R.raw.snd_uno, 1)
+    suspend fun init() {
 
-        bgmPlayer = MediaPlayer.create(context, R.raw.bgm)
+        cardSoundId = loadSound(GameAudio.playSoundPath)
+        winSoundId = loadSound(GameAudio.winSoundPath)
+        loseSoundId = loadSound(GameAudio.loseSoundPath)
+        drawSoundId = loadSound(GameAudio.drawSoundPath)
+        unoSoundId = loadSound(GameAudio.unoSoundPath)
+
+        bgmPlayer = prepareBGM(GameAudio.bgmSoundPath)
         bgmPlayer?.isLooping = true
     }
+
+    private suspend fun loadSound(filePath: String): Int = withContext(Dispatchers.IO) {
+        val allPath = base + File.separator + filePath
+        val assetFileDescriptor = context.assets.openFd(allPath)
+        return@withContext soundPool.load(assetFileDescriptor, 1)
+    }
+
+    private suspend fun prepareBGM(filePath: String): MediaPlayer =
+        withContext(Dispatchers.IO) {
+            MediaPlayer().apply {
+                val allPath = base + File.separator + filePath
+                val afd = context.assets.openFd(allPath)
+                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                prepare()
+                isLooping = true
+            }
+        }
+
 
     override fun playCard() {
         soundPool.play(cardSoundId, 1f, 1f, 1, 0, 1f)

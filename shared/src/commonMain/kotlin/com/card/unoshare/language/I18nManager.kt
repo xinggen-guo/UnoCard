@@ -1,11 +1,11 @@
 package com.card.unoshare.language
 
+import com.card.unoshare.generated.resources.Res
 import i18n.I18nKeys
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import unocard.shared.generated.resources.Res
 
 /**
  * @author xinggen.guo

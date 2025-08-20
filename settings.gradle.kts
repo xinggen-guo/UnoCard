@@ -18,5 +18,13 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "UnoCard"
+
 include(":androidApp")
+include(":iosApp")
 include(":shared")
+include(":desktopApp")
+
+project(":androidApp").projectDir = file("androidApp")
+project(":iosApp").projectDir = file("iosApp")
+project(":shared").projectDir = file("shared")
+project(":desktopApp").projectDir = file("desktopApp")

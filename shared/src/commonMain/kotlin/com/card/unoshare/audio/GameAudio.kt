@@ -17,6 +17,19 @@ interface AudioPlayer {
 }
 
 object GameAudio {
+
+    var bgmSoundPath: String = "files/audio/bgm.mp3"
+
+    var drawSoundPath: String = "files/audio/snd_draw.wav"
+
+    var loseSoundPath: String = "files/audio/snd_lose.wav"
+
+    var playSoundPath: String = "files/audio/snd_play.wav"
+
+    var unoSoundPath: String = "files/audio/snd_uno.wav"
+
+    var winSoundPath: String = "files/audio/snd_win.wav"
+
     lateinit var player: AudioPlayer
 
     fun init(playerImpl: AudioPlayer) {

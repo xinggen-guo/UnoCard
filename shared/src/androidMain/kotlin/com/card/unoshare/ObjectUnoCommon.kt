@@ -16,10 +16,11 @@ import kotlinx.coroutines.runBlocking
 object ObjectUnoCommon {
 
     fun init(context: Context){
-        val audioPlayer = AudioPlayerAndroid(context)
-        GameAudio.init(audioPlayer)
         UserConfig.init(context)
         runBlocking {
+            val audioPlayer = AudioPlayerAndroid(context)
+            audioPlayer.init()
+            GameAudio.init(audioPlayer)
             I18nManager.init()
         }
     }

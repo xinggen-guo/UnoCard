@@ -28,6 +28,8 @@ kotlin {
         }
     }
 
+    jvm()
+
     sourceSets {
 
         commonMain{
@@ -51,7 +53,7 @@ kotlin {
         getByName("iosX64Main").dependsOn(iosMain)
         getByName("iosArm64Main").dependsOn(iosMain)
         getByName("iosSimulatorArm64Main").dependsOn(iosMain)
-
+        val jvmMain by getting
     }
 
     cocoapods {
@@ -63,6 +65,10 @@ kotlin {
             baseName = "shared"
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "com.card.unoshare.generated.resources"
 }
 
 // A one-stop task to generate/copy Compose resources for all variants.

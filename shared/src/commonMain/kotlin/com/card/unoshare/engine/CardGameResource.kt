@@ -1,11 +1,11 @@
 package com.card.unoshare.engine
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.card.unoshare.generated.resources.Res
 import com.card.unoshare.model.Card
 import com.card.unoshare.util.CardShuffler
 import com.card.unoshare.util.toImageBitmap
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import unocard.shared.generated.resources.Res
 
 /**
  * @author xinggen.guo
@@ -23,6 +23,8 @@ object CardGameResource {
     private var bgCounter:String = "files/images/icon_counter.png"
 
     private var victoryPic: String = "files/images/victory.png"
+
+
 
     init {
         cards.addAll(CardShuffler.createDeck().shuffled())
@@ -47,4 +49,5 @@ object CardGameResource {
     suspend fun getVictoryPic(): ImageBitmap {
         return Res.readBytes(victoryPic).toImageBitmap()
     }
+
 }
