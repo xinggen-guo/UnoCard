@@ -53,6 +53,8 @@ kotlin {
         getByName("iosX64Main").dependsOn(iosMain)
         getByName("iosArm64Main").dependsOn(iosMain)
         getByName("iosSimulatorArm64Main").dependsOn(iosMain)
+
+
         val jvmMain by getting
     }
 

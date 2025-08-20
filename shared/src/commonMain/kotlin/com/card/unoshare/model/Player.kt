@@ -2,7 +2,6 @@ package com.card.unoshare.model
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
-import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.language.I18nManager
 import i18n.I18nKeys
 

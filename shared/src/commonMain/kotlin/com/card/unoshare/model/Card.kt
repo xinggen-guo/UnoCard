@@ -1,7 +1,5 @@
 package com.card.unoshare.model
 
-import androidx.compose.ui.geometry.Offset
-
 /**
  * @author xinggen.guo
  * @date 31/07/2025 13:51
@@ -9,11 +7,9 @@ import androidx.compose.ui.geometry.Offset
  */
 data class Card(
     private var color: CardColor,
-    val type: CardType,
-    val number: Int? = null,
-    var cardLocation:Offset? = null,
-    var cardPlaying: Boolean = false
-) {
+    var type: CardType,
+    var number: Int? = null,
+    var cardLocation: CardOffset? = null) {
 
     fun setColor(color: CardColor){
         this.color = color

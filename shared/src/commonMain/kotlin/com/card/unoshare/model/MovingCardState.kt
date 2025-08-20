@@ -7,7 +7,7 @@ import androidx.compose.ui.geometry.Offset
  * @date 04/08/2025 21:19
  * @description
  */
-data class MovingCardState(
+class MovingCardState(
     val cards: List<Card>,
     val from: Offset,
     val to: Offset,

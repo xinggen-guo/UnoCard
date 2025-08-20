@@ -37,6 +37,8 @@ import com.card.unoshare.model.UserSettings
 import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
+import com.card.unoshare.util.toCardOffset
+import com.card.unoshare.util.toOffset
 import i18n.I18nKeys
 import kotlinx.coroutines.delay
 import kotlin.math.PI
@@ -195,7 +197,7 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
         if (winner == null) {
             gameEngine.playRoundByAi(playCard = { card ->
                 if (card.cardLocation != null && disCardOffset != null) {
-                    CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
+                    CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!) {
                         card.cardLocation = null
                         GameAudioManager.playCardSound()
                         checkPlayUno(player = gameEngine.getCurrentPlayer())
@@ -312,7 +314,7 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
                             key(it.hand.size) {
                                 BottomHandStack(it.hand, it, gameEngine, playCard = { card ->
                                     if (disCardOffset != null && card.cardLocation != null) {
-                                        CardFlyManager.start(card, card.cardLocation!!, disCardOffset!!) {
+                                        CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!) {
                                             card.cardLocation = null
                                             checkPlayUno(gameEngine.getCurrentPlayer())
                                             refreshGameState { cards, player ->
@@ -462,7 +464,7 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
                     if (index == cards.size - 1) {
                         player.drawCardOffset = it.localToWindow(Offset.Zero)
                     }
-                    card.cardLocation = it.localToWindow(Offset.Zero)
+                    card.cardLocation = it.localToWindow(Offset.Zero).toCardOffset()
                 }
             )
         }
@@ -499,7 +501,7 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
                     if (index == cards.size - 1) {
                         player.drawCardOffset = it.localToWindow(Offset.Zero)
                     }
-                    card.cardLocation = it.localToWindow(Offset.Zero)
+                    card.cardLocation = it.localToWindow(Offset.Zero).toCardOffset()
                 }
             )
         }
@@ -546,7 +548,7 @@ fun BottomHandStack(
                             if (index == cards.size - 1) {
                                 player.drawCardOffset = it.localToWindow(Offset.Zero)
                             }
-                            card.cardLocation = it.localToWindow(Offset.Zero)
+                            card.cardLocation = it.localToWindow(Offset.Zero).toCardOffset()
                         }.graphicsLayer {
                             alpha = alphaValue
                         }
@@ -609,7 +611,7 @@ fun ColorSelectorDialogHost() {
                             }
                         }
                 ) {
-                    val colors = CardColor.colorList
+                    val colors = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
                     for (i in 0 until 4) {
                         drawArc(
                             color = colors[i],

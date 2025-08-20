@@ -17,7 +17,7 @@ androidx-compose-tooling = { group = "androidx.compose.ui", name = "ui-tooling",
 androidx-compose-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose-androidx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.8.0" }
 
-compose-desktop = { group = "org.jetbrains.compose.desktop", name = "desktop", version.ref = "compose-jb" }
+compose-desktop = { group = "org.jetbrains.compose.desktop", name = "desktop-jvm-macos-arm64", version.ref = "compose-jb" }
 
 # ----- JetBrains Compose (for :shared KMP) -----
 # You won't reference these directly if you prefer the `compose.*` accessors from the Gradle plugin,
