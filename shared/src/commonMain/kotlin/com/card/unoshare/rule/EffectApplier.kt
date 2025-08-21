@@ -44,10 +44,6 @@ object EffectApplier {
                 // Next player draws 2 cards and is skipped
                 val next = gameStatus.peekNextPlayer()
                 next.dealDrawCard = true
-//                repeat(2) {
-//                    drawPile.removeFirstOrNull()?.let { next.hand.add(it) }
-//                }
-//                gameStatus.skipNextPlayer()
             }
 
             CardType.WILD -> {

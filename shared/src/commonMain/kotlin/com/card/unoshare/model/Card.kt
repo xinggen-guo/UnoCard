@@ -30,29 +30,6 @@ data class Card(
             "${color.name}:${type.name}"
     }
 
-    fun randomColor() {
-        setColor(CardColor.entries.random())
-    }
-
-    fun getImageShortName(hand: Boolean = false): String {
-        if(!hand){
-            return "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
-        }else {
-            return when (type) {
-                CardType.WILD -> {
-                    "kw"
-                }
-
-                CardType.WILD_DRAW_FOUR -> {
-                    "kw4"
-                }
-                else -> {
-                    "${color.cardColorResourceName()}${type.getCardTypeResourceName()}${number?.toString() ?: ""}"
-                }
-            }
-        }
-    }
-
     fun getDrawNumber(): Int {
         return when (type) {
             CardType.WILD_DRAW_FOUR -> 4

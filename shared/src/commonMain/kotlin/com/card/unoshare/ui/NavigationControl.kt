@@ -36,7 +36,7 @@ object GameScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        rendCardInitPage(onWin = {gameEngine ->
+        RendCardInitPage(onWin = {gameEngine ->
             navigator.push(VictoryScreen(gameEngine))
         }, onSettingsClick = {
             navigator.push(SettingsScreen)
@@ -59,7 +59,6 @@ object SettingsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-
         SettingsScreen(
             onBack = { navigator.pop() }
         )

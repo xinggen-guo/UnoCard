@@ -9,6 +9,7 @@ import com.card.unoshare.model.Player
 import com.card.unoshare.rule.EffectApplier.applyCardEffect
 import com.card.unoshare.rule.RuleChecker
 import com.card.unoshare.rule.SpecialRuleSet
+import com.card.unoshare.util.AppLog
 import com.card.unoshare.util.CardShuffler
 import i18n.I18nKeys
 
@@ -85,12 +86,11 @@ class GameEngine(
                 player.drawCard(card)
             }
         }
-
         gameStatus.nextPlayer()
+        AppLog.i { "playRoundByAi-finish--" }
     }
 
     fun playTurn(card: Card, player: Player): Boolean {
-
         var needDeal: Boolean
         if (player.dealDrawCard) {
             needDeal = true
@@ -136,7 +136,7 @@ class GameEngine(
         getCurrentPlayer().drawCard(card)
     }
 
-    fun drawCardComplete(cards: List<Card>) {
+    private fun drawCardComplete(cards: List<Card>) {
         getCurrentPlayer().drawCards(cards)
         gameStatus.nextPlayer()
     }
@@ -218,6 +218,14 @@ class GameEngine(
             return false
         }
         return true
+    }
+
+    fun drawCardToCurrentPlayer(checkPlayerDealEffect: (cards: List<Card>, player: Player) -> Unit) {
+        val player = getCurrentPlayer()
+        val cardNumber = getTopCard().getDrawNumber()
+        val cards = drawCardFromPile(cardNumber)
+        drawCardComplete(cards)
+        checkPlayerDealEffect(cards,player)
     }
 
 }

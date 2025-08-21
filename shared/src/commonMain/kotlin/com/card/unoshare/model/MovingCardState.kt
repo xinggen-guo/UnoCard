@@ -12,6 +12,7 @@ data class MovingCardState(
     val from: Offset,
     val to: Offset,
     val isVertical: Boolean?,
+    val cardFace: Boolean,
     val onEachCardArrive: (Card) -> Unit = {},
     val onComplete: () -> Unit = {},
 )

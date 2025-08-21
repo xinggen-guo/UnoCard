@@ -16,8 +16,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.card.unoshare.config.IS_DEBUG_CARD
 import com.card.unoshare.model.Card
 import com.card.unoshare.model.MovingCardState
+import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -59,7 +61,7 @@ fun FlyingCardLayer(
 
             val x = if(state.isVertical !=null){
                 if (!state.isVertical) {
-                    state.to.x + (currentIndex * spacingPx)
+                    state.to.x + ((currentIndex + 1 )* spacingPx)
                 } else {
                     state.to.x
                 }
@@ -69,7 +71,7 @@ fun FlyingCardLayer(
 
             val y = if(state.isVertical != null){
                 if (state.isVertical) {
-                    state.to.y + (currentIndex * spacingPx)
+                    state.to.y + ((currentIndex + 1)* spacingPx)
                 } else {
                     state.to.y
                 }
@@ -82,7 +84,7 @@ fun FlyingCardLayer(
                 launch { animY[i].animateTo(y, spec) }.join()
             }
 
-            state.onEachCardArrive(cards[currentIndex])
+            state.onEachCardArrive(cards[i])
         }
 
         onAnimationEnd(cards)
@@ -94,7 +96,11 @@ fun FlyingCardLayer(
         val last = currentIndex.coerceAtLeast(0)
         for (i in 0..last) {
             val card = cards[i]
-            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            val imageBitmap = if (movingCardState.value?.cardFace == true || IS_DEBUG_CARD) {
+                CardBitmapManager.bitmapByCard(card = card, isHand = true)
+            } else {
+                CardBackManager.bitmap()
+            }
             Image(
                 bitmap = imageBitmap,
                 contentDescription = null,

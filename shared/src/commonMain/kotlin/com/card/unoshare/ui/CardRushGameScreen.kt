@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +25,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.card.unoshare.config.IS_DEBUG_CARD
 import com.card.unoshare.engine.CardGameResource
 import com.card.unoshare.engine.GameAudioManager
 import com.card.unoshare.engine.GameEngine
@@ -37,6 +39,7 @@ import com.card.unoshare.model.UserSettings
 import com.card.unoshare.render.CardBackManager
 import com.card.unoshare.render.CardBitmapManager
 import com.card.unoshare.rule.RuleChecker
+import com.card.unoshare.util.AppLog
 import com.card.unoshare.util.toCardOffset
 import com.card.unoshare.util.toOffset
 import i18n.I18nKeys
@@ -59,13 +62,13 @@ var drawCardOffset: Offset? = null
 var disCardOffset: Offset? = null
 
 @Composable
-fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()->Unit) {
+fun RendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()->Unit) {
 
     val bgWelcomeImg by produceState<ImageBitmap?>(initialValue = null) {
         value = CardGameResource.getBgWelComeImage()
     }
 
-    var currentName by remember { mutableStateOf(UserSettings.playerName) }
+    var currentName by rememberSaveable { mutableStateOf(UserSettings.playerName) }
 
     bgWelcomeImg?.let {
         Image(
@@ -76,7 +79,7 @@ fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()-
         )
     }
 
-    var gameStarted by remember { mutableStateOf(false) }
+    var gameStarted by rememberSaveable { mutableStateOf(false) }
 
     GameAudioManager.playCardBgm()
 
@@ -86,7 +89,7 @@ fun rendCardInitPage(onWin:(gameEngine: GameEngine) -> Unit, onSettingsClick:()-
         if (!gameStarted) {
             WelcomeScreen(onStartClick = {
                 gameEngine = GameInitializer.gameEngine
-                gameEngine?.startGame()
+                gameEngine.startGame()
                 gameStarted = true
             })
         } else {
@@ -153,84 +156,60 @@ fun WelcomeScreen(onStartClick: () -> Unit) {
 fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
     val gameEngine = GameInitializer.gameEngine
     var currentPlayerName by remember { mutableStateOf("") }
-    var topCard by remember { mutableStateOf("") }
-    var allHands by remember { mutableStateOf(mapOf<Player, List<Card>>()) }
+
     var winner by remember { mutableStateOf<String?>(null) }
     var gameClockWise by remember { mutableStateOf(gameEngine.gameClockwise()) }
     var lastPlayerPlayCard by remember { mutableStateOf("") }
     var needCycleHandCard by remember { mutableStateOf(1)  }
 
+    var renderDrawCard by remember { mutableStateOf(false) }
     var renderLeftRefreshCards by remember { mutableStateOf(false) }
     var renderRightRefreshCards by remember { mutableStateOf(false) }
+    var renderDiscardAreaCards by remember { mutableStateOf(false) }
+    var renderBottomRefreshCards by remember { mutableStateOf(false) }
 
-    fun checkNextPlayerDealEffect(gameEngine: GameEngine,checkPlayerDealEffect:(cards : List<Card>,player:Player) -> Unit) {
+    fun refreshGameState() {
+        AppLog.i { "refreshGameState" }
         val player = gameEngine.getCurrentPlayer()
-        if(!player.dealDrawCard){
-            needCycleHandCard += 1
-            return
-        }
-
-        val cardNumber = gameEngine.getTopCard().getDrawNumber()
-        val cards = gameEngine.drawCardFromPile(cardNumber)
-        if(player.drawCardOffset != null && drawCardOffset != null){
-            player.dealDrawCard = false
-            checkPlayerDealEffect(cards, player)
-        }
-    }
-
-    fun refreshGameState(checkPlayerDealEffect: ((cards: List<Card>, player: Player) -> Unit)?) {
-        currentPlayerName = gameEngine.getCurrentPlayerName()
-        topCard = gameEngine.getTopCard().displayText()
-        allHands = gameEngine.getAllPlayerHands()
+        currentPlayerName = player.name
         winner = gameEngine.getWinnerName()
         gameClockWise = gameEngine.gameClockwise()
         lastPlayerPlayCard = gameEngine.getLastDirectionAndCardInfo()
-        checkPlayerDealEffect?.let {
-            checkNextPlayerDealEffect(gameEngine,it)
+
+        //todo need to fix accurately render
+        renderDiscardAreaCards = !renderDiscardAreaCards
+        renderLeftRefreshCards = !renderLeftRefreshCards
+        renderRightRefreshCards = !renderRightRefreshCards
+        renderBottomRefreshCards = !renderBottomRefreshCards
+        if(!player.isAI) {
+            renderDrawCard = !renderDrawCard
         }
-        if(checkPlayerDealEffect == null){
-            needCycleHandCard += 1
-        }
+
+        needCycleHandCard += 1
     }
 
     fun autoCheckNextPlayer(winner: String?, gameEngine: GameEngine) {
+        AppLog.i { "autoCheckNextPlayer" }
         if (winner == null) {
             gameEngine.playRoundByAi(playCard = { card ->
                 if (card.cardLocation != null && disCardOffset != null) {
-                    CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!) {
+                    CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!, true) {
                         card.cardLocation = null
-                        GameAudioManager.playCardSound()
-                        checkPlayUno(player = gameEngine.getCurrentPlayer())
-                        var cardIndex = 0
-                        GameAudioManager.playDrawCardSound()
-                        refreshGameState { cards, player ->
-                            CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI, onEachCardArrive = {
-                                cardIndex ++
-                                if(cardIndex < cards.size){
-                                    GameAudioManager.playDrawCardSound()
-                                }
-                            }, onArrive = {
-                                gameEngine.drawCardComplete(cards)
-                                refreshGameState(null)
-                                renderLeftRefreshCards = !renderLeftRefreshCards
-                                renderRightRefreshCards = !renderRightRefreshCards
-                            })
+                        if(!checkPlayUno(player = gameEngine.getCurrentPlayer())){
+                            GameAudioManager.playCardSound()
                         }
+                        refreshGameState()
+                        AppLog.i { "autoCheckNextPlayer--start--ai-play-finish" }
                     }
                 }
                 return@playRoundByAi true
             }, drawCard = { player, card ->
                 if (player.drawCardOffset != null && drawCardOffset != null) {
+                    val cardFace = !player.isAI
                     GameAudioManager.playDrawCardSound()
-                    CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
-                        refreshGameState { cards, player ->
-                            CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
-                                gameEngine.drawCardComplete(cards)
-                                refreshGameState(null)
-                                renderLeftRefreshCards = !renderLeftRefreshCards
-                                renderRightRefreshCards = !renderRightRefreshCards
-                            }
-                        }
+                    CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!, cardFace) {
+                        refreshGameState()
+                        AppLog.i { "autoCheckNextPlayer--start-ai-draw-finish" }
                     }
                 }
                 return@playRoundByAi true
@@ -241,26 +220,27 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
 
     // 🟡 Initialize the game once
     LaunchedEffect(Unit) {
-        refreshGameState { _, _ ->
-        }
+        refreshGameState()
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        renderDiscardArea(gameEngine)
-        var renderBottomRefreshCards by remember { mutableStateOf(false) }
-
+        key(renderDiscardAreaCards) {
+            RenderDiscardArea(gameEngine)
+        }
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            renderDrawArea(gameEngine, maxWidth) { card, player ->
-                GameAudioManager.playDrawCardSound()
-                CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!) {
-                    card.cardLocation = null
-                    if(!gameEngine.checkDrawCard(card,player)){
-                        needCycleHandCard += 1
+            key(renderDrawCard) {
+                RenderDrawArea(gameEngine, maxWidth) { card, player ->
+                    GameAudioManager.playDrawCardSound()
+                    CardFlyManager.start(card, drawCardOffset!!, player.drawCardOffset!!,cardFace = true) {
+                        card.cardLocation = null
+                        if (!gameEngine.checkDrawCard(card, player)) {
+                            needCycleHandCard += 1
+                        }
+                        renderBottomRefreshCards = !renderBottomRefreshCards
                     }
-                    renderBottomRefreshCards = !renderBottomRefreshCards
                 }
             }
         }
@@ -314,23 +294,12 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
                             key(it.hand.size) {
                                 BottomHandStack(it.hand, it, gameEngine, playCard = { card ->
                                     if (disCardOffset != null && card.cardLocation != null) {
-                                        CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!) {
+                                        if(!checkPlayUno(gameEngine.getCurrentPlayer())){
+                                            GameAudioManager.playCardSound()
+                                        }
+                                        CardFlyManager.start(card, card.cardLocation!!.toOffset(), disCardOffset!!,true) {
                                             card.cardLocation = null
-                                            checkPlayUno(gameEngine.getCurrentPlayer())
-                                            refreshGameState { cards, player ->
-                                                var cardIndex = 0
-                                                GameAudioManager.playDrawCardSound()
-                                                CardFlyManager.start(cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI,
-                                                    onEachCardArrive = {card: Card ->
-                                                        cardIndex ++
-                                                        if(cardIndex < cards.size){
-                                                            GameAudioManager.playDrawCardSound()
-                                                        }
-                                                }, onArrive = {
-                                                    gameEngine.drawCardComplete(cards)
-                                                    refreshGameState(null)
-                                                })
-                                            }
+                                            refreshGameState()
                                         }
                                     }
                                 })
@@ -340,39 +309,62 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
                 }
 
                 Alignment.CenterStart -> {
-                    Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterStart)) {
-                        LeftHandStack(it.hand, it, gameEngine)
-                        Text(
-                            gameEngine.getPlayerPositionStr(it),
-                            color = textColor,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                                .padding(start = 10.dp)
-                        )
+                    key(renderLeftRefreshCards) {
+                        Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterStart)) {
+                            LeftHandStack(it.hand, it, gameEngine)
+                            Text(
+                                gameEngine.getPlayerPositionStr(it),
+                                color = textColor,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                                    .padding(start = 10.dp)
+                            )
+                        }
                     }
                 }
 
                 Alignment.CenterEnd -> {
-                    Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterEnd)) {
-                        Text(
-                            gameEngine.getPlayerPositionStr(it),
-                            color = textColor,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                                .padding(end = 10.dp)
-                        )
-                        RightHandStack(it.hand, it, gameEngine)
+                    key(renderRightRefreshCards) {
+                        Row(modifier = Modifier.fillMaxHeight().align(alignment = Alignment.CenterEnd)) {
+                            Text(
+                                gameEngine.getPlayerPositionStr(it),
+                                color = textColor,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                                    .padding(end = 10.dp)
+                            )
+                            RightHandStack(it.hand, it, gameEngine)
+                        }
                     }
                 }
             }
         }
-
-
     }
 
-    LaunchedEffect(needCycleHandCard){
+    LaunchedEffect(needCycleHandCard) {
+        delay(500)
         val player = gameEngine.getCurrentPlayer()
-        if(player.isAI) {
-            delay(500)
-            autoCheckNextPlayer(winner, gameEngine)
+        AppLog.i { "needCycleHandCard:${needCycleHandCard}--isAI:${player.isAI}--dealDrawCard:${player.dealDrawCard}" }
+        if (player.dealDrawCard) {
+            AppLog.i { "needCycleHandCard--dealDrawCard--start" }
+            player.dealDrawCard = false
+            gameEngine.drawCardToCurrentPlayer(checkPlayerDealEffect = { cards, player ->
+                var cardIndex = 0
+                CardFlyManager.start(
+                    cards, drawCardOffset!!, player.drawCardOffset!!, player.isAI,!player.isAI,
+                    onEachCardArrive = { _: Card ->
+                        cardIndex++
+                        if (cardIndex < cards.size) {
+                            GameAudioManager.playDrawCardSound()
+                        }
+                    }, onArrive = {
+                        refreshGameState()
+                        AppLog.i { "Draw card $cardIndex" }
+                    })
+            })
+            AppLog.i { "needCycleHandCard--dealDrawCard--finished" }
+        } else {
+            if (player.isAI) {
+                autoCheckNextPlayer(winner, gameEngine)
+            }
         }
     }
 }
@@ -380,7 +372,7 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
 
 
 @Composable
-fun renderDrawArea(gameEngine: GameEngine, maxWidth: Dp, renderCard: (card: Card, player: Player) -> Unit) {
+fun RenderDrawArea(gameEngine: GameEngine, maxWidth: Dp, renderCard: (card: Card, player: Player) -> Unit) {
     val startOrRefreshImg = CardBackManager.bitmap()
     val area = maxWidth * 0.5f  // 只占一半屏幕宽度剧中
     val totalWidth = startOrRefreshImg.width.dp
@@ -400,13 +392,14 @@ fun renderDrawArea(gameEngine: GameEngine, maxWidth: Dp, renderCard: (card: Card
 }
 
 @Composable
-fun renderDiscardArea(gameEngine: GameEngine) {
+fun RenderDiscardArea(gameEngine: GameEngine) {
     gameEngine.getDiscardPile().let {
         val playCards = if (it.size > 3) {
             it.subList(it.size - 3, it.size).toList()
         } else {
             it.toList()
         }
+        AppLog.i { "RenderDiscardArea--discardSize:${it.size}--subSize:${playCards.size}" }
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize(),
@@ -443,7 +436,11 @@ fun LeftHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEngi
         contentAlignment = Alignment.CenterStart
     ) {
         cards.forEachIndexed { index, card ->
-            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            val imageBitmap = if (IS_DEBUG_CARD) {
+                CardBitmapManager.bitmapByCard(card = card, isHand = true)
+            } else {
+                CardBackManager.bitmap()
+            }
             val canPlayCard = player == gameEngine.getCurrentPlayer()
             val colorFilter = if (!canPlayCard) ColorFilter.tint(
                 color = Color(0xFF555555),
@@ -480,7 +477,11 @@ fun RightHandStack(cards: MutableList<Card>, player: Player, gameEngine: GameEng
         contentAlignment = Alignment.CenterEnd
     ) {
         cards.forEachIndexed { index, card ->
-            val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            val imageBitmap =  if(IS_DEBUG_CARD){
+                CardBitmapManager.bitmapByCard(card = card,isHand = true)
+            }else{
+                CardBackManager.bitmap()
+            }
             val canPlayCard = player == gameEngine.getCurrentPlayer()
             val colorFilter = if (!canPlayCard) ColorFilter.tint(
                 color = Color(0xFF555555),
@@ -557,8 +558,8 @@ fun BottomHandStack(
                                 CardType.WILD,CardType.WILD_DRAW_FOUR -> {
                                     ColorSelectorDialogController.show {
                                         gameEngine.playSelectColor(it, card, player)
+                                        alphaValue = 0f
                                         playCard(card)
-                                        GameAudioManager.playCardSound()
                                     }
                                 }
 
@@ -566,7 +567,6 @@ fun BottomHandStack(
                                     GameInitializer.gameEngine.playTurn(card, player)
                                     alphaValue = 0f
                                     playCard(card)
-                                    GameAudioManager.playCardSound()
                                 }
                             }
 
@@ -626,10 +626,12 @@ fun ColorSelectorDialogHost() {
     }
 }
 
-fun checkPlayUno(player: Player){
+fun checkPlayUno(player: Player): Boolean{
     if(player.hand.size <= 2){
         GameAudioManager.playUno()
+        return true
     }
+    return false
 }
 
 

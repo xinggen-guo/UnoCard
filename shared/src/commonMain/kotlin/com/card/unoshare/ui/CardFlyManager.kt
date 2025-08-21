@@ -13,15 +13,24 @@ import com.card.unoshare.model.MovingCardState
 object CardFlyManager {
     var movingCardState = mutableStateOf<MovingCardState?>(null)
 
-    fun start(card: Card, from: Offset, to: Offset, onArrive: () -> Unit = {}) {
+    fun start(card: Card, from: Offset, to: Offset, cardFace: Boolean, onArrive: () -> Unit = {}) {
         val cards = mutableListOf(card)
-        start(cards, from, to, isVertical = null,onEachCardArrive = {
+        start(cards, from, to, isVertical = null, cardFace, onEachCardArrive = {
 
         }, onArrive)
     }
 
-    fun start(cards: List<Card>, from: Offset, to: Offset, isVertical: Boolean?, onEachCardArrive:(Card) -> Unit, onArrive: () -> Unit) {
-        movingCardState.value = MovingCardState(cards, from, to, isVertical = isVertical,onEachCardArrive = onEachCardArrive ,onArrive)
+    fun start(
+        cards: List<Card>,
+        from: Offset,
+        to: Offset,
+        isVertical: Boolean?,
+        cardFace: Boolean,
+        onEachCardArrive: (Card) -> Unit,
+        onArrive: () -> Unit
+    ) {
+        movingCardState.value =
+            MovingCardState(cards, from, to, isVertical = isVertical, cardFace = cardFace, onEachCardArrive = onEachCardArrive, onArrive)
     }
 
     fun clear() {

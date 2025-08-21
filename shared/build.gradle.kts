@@ -53,8 +53,6 @@ kotlin {
         getByName("iosX64Main").dependsOn(iosMain)
         getByName("iosArm64Main").dependsOn(iosMain)
         getByName("iosSimulatorArm64Main").dependsOn(iosMain)
-
-
         val jvmMain by getting
     }
 
@@ -103,6 +101,8 @@ afterEvaluate {
 }
 
 android {
+
+    buildFeatures { buildConfig = true }
 
     sourceSets["main"].assets.srcDirs("src/androidMain/assets")
 
