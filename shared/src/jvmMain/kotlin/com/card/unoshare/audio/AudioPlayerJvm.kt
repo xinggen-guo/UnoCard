@@ -3,6 +3,8 @@ package com.card.unoshare.audio
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
+import java.io.InputStreamReader
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.Clip
 import kotlin.concurrent.thread
@@ -19,13 +21,13 @@ class AudioPlayerJvm : AudioPlayer {
 
     private fun loadAndPlay(audioPath: String, loop: Boolean = false) {
         try {
-
-            val audioFile = File(audioPath)
-            if (!audioFile.exists()) {
+            clips[audioPath]?.stop()
+            val audioFile = getClasspathFile(audioPath)
+            if (audioFile == null) {
                 println("❌file is not exist $audioPath")
                 return
             }
-            val audioStream = AudioSystem.getAudioInputStream( BufferedInputStream(FileInputStream(audioPath)))
+            val audioStream = AudioSystem.getAudioInputStream( BufferedInputStream(audioFile))
             val clip = AudioSystem.getClip()
             clip.open(audioStream)
             if (loop) clip.loop(Clip.LOOP_CONTINUOUSLY) else clip.start()
@@ -62,12 +64,13 @@ class AudioPlayerJvm : AudioPlayer {
     override fun playBgm(loop: Boolean) {
         thread {
             try {
-                val audioUrl = javaClass.getResource("/audio/bgm.wav")
-                if (audioUrl == null) {
-                    println("❌ BGM resource not found: bgm.wav")
+                if(bgmClip?.isRunning == true) return@thread
+                val audioFile = getClasspathFile(GameAudio.bgmSoundPath)
+                if (audioFile == null) {
+                    println("❌ BGM resource not found: bgm")
                     return@thread
                 }
-                val stream = AudioSystem.getAudioInputStream(BufferedInputStream(audioUrl.openStream()))
+                val stream = AudioSystem.getAudioInputStream(BufferedInputStream(audioFile))
                 val clip = AudioSystem.getClip()
                 clip.open(stream)
                 if (loop) clip.loop(Clip.LOOP_CONTINUOUSLY) else clip.start()
@@ -84,11 +87,19 @@ class AudioPlayerJvm : AudioPlayer {
             it.close()
         }
         clips.clear()
+        stopBgm()
     }
 
     override fun stopBgm() {
         bgmClip?.stop()
         bgmClip?.close()
         bgmClip = null
+    }
+
+    fun getClasspathFile(path: String): InputStream {
+        val absolutePath = "composeResources/com.card.unoshare.generated.resources/${path}"
+        val inputStream = AudioPlayerJvm::class.java.classLoader.getResourceAsStream(absolutePath)
+            ?: error("Resource not found: $path")
+        return inputStream
     }
 }

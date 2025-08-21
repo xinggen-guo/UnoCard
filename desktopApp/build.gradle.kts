@@ -6,7 +6,11 @@ plugins {
 }
 
 kotlin {
-    jvm()
+    jvm {
+        compilations.all {
+            compileTaskProvider.get().dependsOn(":shared:generateComposeResClass")
+        }
+    }
 
     sourceSets {
         val jvmMain by getting {

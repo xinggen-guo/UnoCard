@@ -7,8 +7,8 @@ package com.card.unoshare.model
  */
 data class Card(
     private var color: CardColor,
-    var type: CardType,
-    var number: Int? = null,
+    val type: CardType,
+    val number: Int? = null,
     var cardLocation: CardOffset? = null) {
 
     fun setColor(color: CardColor){

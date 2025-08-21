@@ -18,7 +18,7 @@ interface AudioPlayer {
 
 object GameAudio {
 
-    var bgmSoundPath: String = "files/audio/bgm.mp3"
+    var bgmSoundPath: String = "files/audio/bgm.wav"
 
     var drawSoundPath: String = "files/audio/snd_draw.wav"
 
