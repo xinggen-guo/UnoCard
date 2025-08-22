@@ -228,4 +228,22 @@ class GameEngine(
         checkPlayerDealEffect(cards,player)
     }
 
+    fun sortCards(cards: List<Card>): List<Card> {
+        return cards.sortedWith(compareBy<Card> { card ->
+            when (card.type) {
+                CardType.WILD, CardType.WILD_DRAW_FOUR -> 0
+                else -> 1
+            }
+        }.thenBy { card ->
+            card.getColor().ordinal
+        }.thenBy { card ->
+            when (card.type) {
+                CardType.SKIP, CardType.REVERSE, CardType.DRAW_TWO -> 0
+                else -> 1
+            }
+        }.thenBy { card ->
+            card.number ?: Int.MAX_VALUE
+        })
+    }
+
 }

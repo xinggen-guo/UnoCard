@@ -522,7 +522,8 @@ fun BottomHandStack(
             .padding(bottom = 8.dp, top = 8.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        cards.forEachIndexed { index, card ->
+        val sortCards = gameEngine.sortCards(cards)
+        sortCards.forEachIndexed { index, card ->
             val canPlayCard = player == gameEngine.getCurrentPlayer() && RuleChecker.isPlayable(
                 card,
                 GameInitializer.gameEngine.getTopCard()
@@ -530,7 +531,7 @@ fun BottomHandStack(
 
             val imageBitmap = CardBitmapManager.bitmapByCard(card = card,isHand = true)
             imageBitmap.let {
-                val totalWidth = (cards.size - 1) * offsetCardPadding
+                val totalWidth = (sortCards.size - 1) * offsetCardPadding
                 val startX = -totalWidth / 2  // 第0张卡的offset起点
                 val offsetX = startX + index * offsetCardPadding
                 val colorFilter = if (!canPlayCard) ColorFilter.tint(
