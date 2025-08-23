@@ -222,7 +222,7 @@ fun StartCardGameScreen(onWin:(gameEngine: GameEngine) -> Unit) {
     LaunchedEffect(Unit) {
         refreshGameState()
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
         key(renderDiscardAreaCards) {
             RenderDiscardArea(gameEngine)
         }
