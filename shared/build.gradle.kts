@@ -110,7 +110,9 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 24
+        consumerProguardFiles("src/androidMain/consumer-proguard-rules.pro")
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
