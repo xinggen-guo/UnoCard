@@ -23,13 +23,13 @@ UnoCard delivers a consistent experience across **Android**, **iOS**, and **Desk
    
 ---
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/imge.png" />
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/image.png" />
 </p>
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot1.jpg"/>
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/screenshot1.jpg"/>
 </p>
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot2.jpg"/>
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/screenshot2.jpg"/>
 </p>
 ## 📂 Project Structure
 
@@ -93,13 +93,13 @@ Open `iosApp/iosApp.xcworkspace` in Xcode
 ---
 
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/imge.png" />
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/image.png" />
 </p>
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot1.jpg"/>
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/screenshot1.jpg"/>
 </p>
 <p align="center">
-<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot2.jpg"/>
+<img src="https://raw.githubusercontent.com/xinggen-guo/UnoCard/main/images/screenshot2.jpg"/>
 </p>
 
 ## 📂 项目结构
