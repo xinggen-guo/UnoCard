@@ -20,9 +20,17 @@ UnoCard delivers a consistent experience across **Android**, **iOS**, and **Desk
 - 🌍 **Internationalization (i18n)**: JSON resource-based translations
 - 🎲 **Full UNO game logic**: shuffling, dealing, turn handling, special cards, and win detection
 - 🚀 **Extensible architecture**: themes, animations, and new platforms can be added with minimal effort
-
+   
 ---
-
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/imge.png" />
+</p>
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot1.jpg"/>
+</p>
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot2.jpg"/>
+</p>
 ## 📂 Project Structure
 
 ```
@@ -83,6 +91,16 @@ Open `iosApp/iosApp.xcworkspace` in Xcode
 - 🚀 **可扩展架构**
 
 ---
+
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/imge.png" />
+</p>
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot1.jpg"/>
+</p>
+<p align="center">
+<img src="https://github.com/xinggen-guo/UnoCard/tree/main/images/screenshot2.jpg"/>
+</p>
 
 ## 📂 项目结构
 
